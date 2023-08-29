@@ -20,11 +20,11 @@ class View extends JPanel
 	// ****
 	Model model;
 
-	View(Controller c, Model m, Game g)
+	View(Controller c, Model m, Game game)
 	{
 		// Make a button
-		b1 = new JButton("Never push me!");
-		b1.addActionListener(c);
+		// b1 = new JButton("Never push me!");
+		// b1.addActionListener(c);
 		
 		// ****
 		// Step 5: Get rid of that useless button.
@@ -47,7 +47,17 @@ class View extends JPanel
 			System.exit(1);
 		}
 
-		this.images = new BufferedImage[Game.THINGS.length];
+		this.images = new BufferedImage[game.THINGS.length];
+		for (int i = 0; i < game.THINGS.length; i++) {
+			try {
+				String filename = "images/"+game.THINGS[i]+".png";
+				System.out.println("Filename: " + filename);
+				this.images[i] = ImageIO.read(new File(filename));
+			} catch(Exception e) {
+				e.printStackTrace(System.err);
+				System.exit(1);
+			}
+		}
 	}
 
 	public void paintComponent(Graphics g)
@@ -64,9 +74,26 @@ class View extends JPanel
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 
 		// Draw the image so that its bottom center is at (x,y)
-		int w = this.turtle_image.getWidth();
-		int h = this.turtle_image.getHeight();
-		g.drawImage(this.turtle_image, model.turtle_x - w / 2, model.turtle_y - h, null);
+		// int w = this.turtle_image.getWidth();
+		// int h = this.turtle_image.getHeight();
+		// g.drawImage(this.turtle_image, model.turtle_x - w / 2, model.turtle_y - h, null);
+
+		g.setColor(new Color(73,71,134));
+		g.fillRect(0, 0, 200, 200);
+
+		int w = this.images[model.selected_thing].getWidth();
+		int h = this.images[model.selected_thing].getHeight();
+		//g.drawImage(this.images[current_image], model.turtle_x - w / 2, model.turtle_y - h, null);
+		g.drawImage(this.images[model.selected_thing], w - w / 2, h - h, null);
+
+		for (int i = 0; i < model.things.size(); i++) {
+			try {
+				int index = model.things.get(i).kind;
+				g.drawImage(this.images[index], w - w / 2, h - h, null);
+			} catch(Exception e) {
+
+			}
+		}
 	}
 	
 	void removeButton()

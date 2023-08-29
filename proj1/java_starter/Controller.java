@@ -33,6 +33,22 @@ class Controller implements ActionListener, MouseListener, KeyListener
 	public void mousePressed(MouseEvent e)
 	{
 		model.setDestination(e.getX(), e.getY());
+
+		System.out.println("mouse pressed");
+
+		if ((e.getX() > 0 && e.getX() < 200) && (e.getY() > 0 && e.getY() < 200) ) {
+			// change what is currently selected
+			model.selected_thing++;
+			System.out.println("rotate");
+		} 
+		else if (e.getButton() == 1) {
+			// add "one of those things" to ArrayList
+			model.addThing(e.getX(), e.getY());
+		}
+		else if (e.getButton() == 3) {
+			// remove the closest thing (euclidian distance)
+			model.removeThing(e.getX(), e.getY());
+		}
 	}
 
 	public void mouseReleased(MouseEvent e) 

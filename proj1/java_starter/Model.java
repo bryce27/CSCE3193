@@ -26,8 +26,9 @@ class Model
 	static int speed = 4;
 	// ****
 	// (Step 6): add an ArrayList to hold the things...
-	ArrayList<Thing> things;
+	public ArrayList<Thing> things;
 	// ****
+	int selected_thing;
 	
 
 	Model()
@@ -36,15 +37,16 @@ class Model
 		this.turtle_y = 100;
 		this.dest_x = 150;
 		this.dest_y = 100;
-		// this.things = new ArrayList();
+		this.things = new ArrayList<Thing>();
 	}
 
 	public void addThing(int x, int y){ // x and y of the mouse
-		things.add(new Thing(x, y, 1));
+		things.add(new Thing(x, y, this.selected_thing));
 	}
 
 	public void removeThing(int x, int y){
 		// TODO: search for thing closest to these points
+		System.out.println("remove Thing");
 	}
 
 	public void update()

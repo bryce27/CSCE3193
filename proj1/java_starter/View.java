@@ -17,7 +17,11 @@ class View extends JPanel
 		// Make a button
 		b1 = new JButton("Never push me!");
 		b1.addActionListener(c);
-		this.add(b1);
+		
+		// ****
+		// Step 5: Get rid of that useless button.
+		// this.add(b1);
+		// ****
 
 		// Link up to other objects
 		c.setView(this);
@@ -41,9 +45,11 @@ class View extends JPanel
 		// Clear the background
 		g.setColor(new Color(128, 255, 255));
 
+		// ****
 		// Step #5: Change the background to some shade of green....
 		// using this color palette: https://www.color-hex.com/color-palette/100266
 		g.setColor(new Color(132,208,125));
+		// ****
 
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 

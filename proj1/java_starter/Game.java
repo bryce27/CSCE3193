@@ -9,8 +9,9 @@ public class Game extends JFrame
 
 	// ****
 	// (Step 6): start by adding this list of things to the Game class in Game.java:
+	// added "static" in class
 
-	public final String[] Things = {
+	public static final String[] THINGS = {
 		"chair", 
 		"lamp", 
 		"mushroom",
@@ -30,7 +31,7 @@ public class Game extends JFrame
 		// Instantiate the three main objects
 		model = new Model();
 		controller = new Controller(model);
-		view = new View(controller, model);
+		view = new View(controller, model, this);
 
 		// Set some window properties
 		this.setTitle("Turtle Attack!");

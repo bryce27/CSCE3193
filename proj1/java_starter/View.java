@@ -20,7 +20,7 @@ class View extends JPanel
 	// ****
 	Model model;
 
-	View(Controller c, Model m)
+	View(Controller c, Model m, Game g)
 	{
 		// Make a button
 		b1 = new JButton("Never push me!");
@@ -46,6 +46,8 @@ class View extends JPanel
 			e.printStackTrace(System.err);
 			System.exit(1);
 		}
+
+		this.images = new BufferedImage[Game.THINGS.length];
 	}
 
 	public void paintComponent(Graphics g)

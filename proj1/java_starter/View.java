@@ -3,6 +3,8 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.io.File;
+import java.util.ArrayList;
+
 import javax.swing.JButton;
 import java.awt.Color;
 
@@ -10,6 +12,12 @@ class View extends JPanel
 {
 	JButton b1;
 	BufferedImage turtle_image;
+	// ****
+	// (Step 6) Then, in the View class, have it load each image from that array 
+	BufferedImage[] images;
+ 
+	// TODO: "and add it to an array of images (instead of just loading that one turtle image)."
+	// ****
 	Model model;
 
 	View(Controller c, Model m)

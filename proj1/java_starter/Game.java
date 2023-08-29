@@ -7,6 +7,9 @@ public class Game extends JFrame
 	Controller controller;
 	View view;
 
+	// ****
+	// (Step 6): start by adding this list of things to the Game class in Game.java:
+
 	public final String[] Things = {
 		"chair", 
 		"lamp", 
@@ -19,6 +22,8 @@ public class Game extends JFrame
 		"tree",
 		"turtle",
 	};
+
+	// ****
 
 	public Game()
 	{

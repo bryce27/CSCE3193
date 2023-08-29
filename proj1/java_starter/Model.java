@@ -1,3 +1,22 @@
+import java.util.ArrayList;
+
+// ****
+// (Step 6): In Model, add a class to represent a thing.
+class Thing
+{
+	public int x;
+	public int y;
+	public int kind;
+
+	Thing(int x, int y, int kind)
+	{
+		this.x = x;
+		this.y = y;
+		this.kind = kind;
+	}
+}
+// ****
+
 class Model
 {
 	int turtle_x;
@@ -5,6 +24,11 @@ class Model
 	int dest_x;
 	int dest_y;
 	static int speed = 4;
+	// ****
+	// (Step 6): add an ArrayList to hold the things...
+	ArrayList<Thing> things;
+	// ****
+	
 
 	Model()
 	{
@@ -12,6 +36,7 @@ class Model
 		this.turtle_y = 100;
 		this.dest_x = 150;
 		this.dest_y = 100;
+		// this.things = new ArrayList();
 	}
 
 	public void update()

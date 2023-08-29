@@ -7,6 +7,19 @@ public class Game extends JFrame
 	Controller controller;
 	View view;
 
+	public final String[] Things = {
+		"chair", 
+		"lamp", 
+		"mushroom",
+		"outhouse",
+		"pillar",
+		"pond",
+		"rock",
+		"statue",
+		"tree",
+		"turtle",
+	};
+
 	public Game()
 	{
 		// Instantiate the three main objects

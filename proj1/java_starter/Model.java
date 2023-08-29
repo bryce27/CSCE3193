@@ -39,6 +39,14 @@ class Model
 		// this.things = new ArrayList();
 	}
 
+	public void addThing(int x, int y){ // x and y of the mouse
+		things.add(new Thing(x, y, 1));
+	}
+
+	public void removeThing(int x, int y){
+		// TODO: search for thing closest to these points
+	}
+
 	public void update()
 	{
 		if(this.turtle_x < this.dest_x)

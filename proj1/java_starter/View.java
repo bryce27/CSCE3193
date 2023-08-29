@@ -89,7 +89,10 @@ class View extends JPanel
 		for (int i = 0; i < model.things.size(); i++) {
 			try {
 				int index = model.things.get(i).kind;
-				g.drawImage(this.images[index], w - w / 2, h - h, null);
+				int width = this.images[model.selected_thing].getWidth();
+				int height = this.images[model.selected_thing].getHeight();
+
+				g.drawImage(this.images[index], model.things.get(i).x - width / 2, model.things.get(i).y - height, null);
 			} catch(Exception e) {
 
 			}

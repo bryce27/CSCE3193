@@ -29,6 +29,7 @@ class Model
 	public ArrayList<Thing> things;
 	// ****
 	int selected_thing;
+
 	
 
 	Model()
@@ -40,13 +41,32 @@ class Model
 		this.things = new ArrayList<Thing>();
 	}
 
+	// find distance between a thing (contains x,y) and given X,Y coords
+	public double calculate_distance(Thing thing, int x, int y){
+		double dist = Math.sqrt((y - thing.y) * (y - thing.y) + (x - thing.x) * (x - thing.x));
+		System.out.println("Distance: " + dist);
+		return dist;
+	}
+
 	public void addThing(int x, int y){ // x and y of the mouse
 		things.add(new Thing(x, y, this.selected_thing));
 	}
 
 	public void removeThing(int x, int y){
-		// TODO: search for thing closest to these points
-		System.out.println("remove Thing");
+		// search for thing closest to these points
+		double closest_distance = Double.MAX_VALUE;
+		int closest_thing = -1;
+
+		for (int i = 0; i < this.things.size(); i++) {
+			double distance = calculate_distance(this.things.get(i), x, y);
+			if (distance < closest_distance) {
+				closest_distance = distance;
+				closest_thing = i;
+			}
+		}
+
+		System.out.println("Closest thing index: " + closest_thing);
+		this.things.remove(closest_thing);
 	}
 
 	public void update()

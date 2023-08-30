@@ -10,14 +10,12 @@ import java.awt.Color;
 
 class View extends JPanel
 {
-	JButton b1;
-	BufferedImage turtle_image;
+	// JButton b1;
+	// BufferedImage turtle_image;
 	// ****
 	// (Step 6) Then, in the View class, have it load each image from that array 
 	BufferedImage[] images;
- 
-	// TODO: "and add it to an array of images (instead of just loading that one turtle image)."
-	// ****
+ 	// ****
 	Model model;
 
 	View(Controller c, Model m, Game game)
@@ -39,13 +37,13 @@ class View extends JPanel
 		this.addMouseListener(c);
 
 		// Load the turtle image
-		try
-		{
-			this.turtle_image = ImageIO.read(new File("images/turtle.png"));
-		} catch(Exception e) {
-			e.printStackTrace(System.err);
-			System.exit(1);
-		}
+		// try
+		// {
+		// 	this.turtle_image = ImageIO.read(new File("images/turtle.png"));
+		// } catch(Exception e) {
+		// 	e.printStackTrace(System.err);
+		// 	System.exit(1);
+		// }
 
 		this.images = new BufferedImage[game.THINGS.length];
 		for (int i = 0; i < game.THINGS.length; i++) {
@@ -78,30 +76,31 @@ class View extends JPanel
 		// int h = this.turtle_image.getHeight();
 		// g.drawImage(this.turtle_image, model.turtle_x - w / 2, model.turtle_y - h, null);
 
-		g.setColor(new Color(73,71,134));
-		g.fillRect(0, 0, 200, 200);
-
-		int w = this.images[model.selected_thing].getWidth();
-		int h = this.images[model.selected_thing].getHeight();
-		//g.drawImage(this.images[current_image], model.turtle_x - w / 2, model.turtle_y - h, null);
-		g.drawImage(this.images[model.selected_thing], w - w / 2, h - h, null);
-
 		for (int i = 0; i < model.things.size(); i++) {
 			try {
 				int index = model.things.get(i).kind;
 				int width = this.images[model.selected_thing].getWidth();
 				int height = this.images[model.selected_thing].getHeight();
 
-				g.drawImage(this.images[index], model.things.get(i).x - width / 2, model.things.get(i).y - height, null);
+				g.drawImage(this.images[index], model.things.get(i).x - width / 2, model.things.get(i).y - height/2, null);
 			} catch(Exception e) {
-
+				e.printStackTrace(System.err);
+				System.exit(1);
 			}
 		}
+
+		g.setColor(new Color(73,71,134));
+		g.fillRect(0, 0, 200, 200);
+
+		// int w = this.images[model.selected_thing].getWidth();
+		// int h = this.images[model.selected_thing].getHeight();
+		//g.drawImage(this.images[current_image], model.turtle_x - w / 2, model.turtle_y - h, null);
+		g.drawImage(this.images[model.selected_thing], 0, 0, null);
 	}
 	
 	void removeButton()
 	{
-		this.remove(this.b1);
+		//this.remove(this.b1);
 		this.repaint();
 	}
 }

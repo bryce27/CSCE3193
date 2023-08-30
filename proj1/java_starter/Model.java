@@ -39,6 +39,7 @@ class Model
 		this.dest_x = 150;
 		this.dest_y = 100;
 		this.things = new ArrayList<Thing>();
+		this.selected_thing = 0;
 	}
 
 	// find distance between a thing (contains x,y) and given X,Y coords

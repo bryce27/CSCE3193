@@ -35,11 +35,11 @@ public class Game extends JFrame
 
 		// Set some window properties
 		this.setTitle("Turtle Attack!");
-		this.setSize(500, 500);
+		//this.setSize(500, 500);
 
 		// ****
 		// Step 5: Increase the size of the window to be bigger...
-		this.setSize(1000, 700);
+		this.setSize(1200, 700);
 		// ****
 
 		this.setFocusable(true);

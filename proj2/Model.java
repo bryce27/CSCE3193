@@ -14,6 +14,11 @@ class Thing
 		this.y = y;
 		this.kind = kind;
 	}
+
+	public Json marshal() 
+	{
+		return null;
+	}
 }
 // ****
 
@@ -30,7 +35,17 @@ class Model
 	// ****
 	int selected_thing;
 
-	
+	public Json marshal()
+	{
+		Json map = Json.newObject();
+		Json list_of_things = Json.newList();
+		map.add("things", list_of_things);
+		for (Thing t : this.things)
+		{
+			list_of_things.add(t.marshal());
+		}
+		return map;
+	}
 
 	Model()
 	{
@@ -41,6 +56,8 @@ class Model
 		this.things = new ArrayList<Thing>();
 		this.selected_thing = 0;
 	}
+
+	
 
 	// find distance between a thing (contains x,y) and given X,Y coords
 	public double calculate_distance(Thing thing, int x, int y){

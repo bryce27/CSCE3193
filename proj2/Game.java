@@ -7,10 +7,6 @@ public class Game extends JFrame
 	Controller controller;
 	View view;
 
-	// ****
-	// (Step 6): start by adding this list of things to the Game class in Game.java:
-	// added "static" in class
-
 	public static final String[] THINGS = {
 		"chair", 
 		"lamp", 
@@ -24,8 +20,6 @@ public class Game extends JFrame
 		"turtle",
 	};
 
-	// ****
-
 	public Game()
 	{
 		// Instantiate the three main objects
@@ -34,13 +28,8 @@ public class Game extends JFrame
 		view = new View(controller, model, this);
 
 		// Set some window properties
-		this.setTitle("Turtle Attack!");
-		//this.setSize(500, 500);
-
-		// ****
-		// Step 5: Increase the size of the window to be bigger...
+		this.setTitle("Map Editor!");
 		this.setSize(1200, 700);
-		// ****
 
 		this.setFocusable(true);
 		this.getContentPane().add(view);

@@ -1,4 +1,6 @@
 import java.awt.event.MouseListener;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.awt.event.MouseEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -24,10 +26,31 @@ class Controller implements ActionListener, MouseListener, KeyListener
 		view = v;
 	}
 
+	// saves the model to a file named "map.json" when you press the "save" button.
+	public void saveModelToJson()
+	{
+		try {
+			FileWriter writer = new FileWriter("map.json");
+			writer.write(this.model.marshal().toString());
+			writer.close();
+		} catch (IOException exception) {
+			exception.printStackTrace();
+			System.exit(1);
+		}
+
+	}
+
 	public void actionPerformed(ActionEvent e)
 	{
-		System.out.println("Hey! I said never push that button! This incident will be reported! (j/k)");
-		view.removeButton();
+		String button_text = e.getActionCommand();
+		if (button_text == "Load Map") {
+			System.out.println("loading map...");
+			
+		}
+		else if (button_text == "Save Map") {
+			System.out.println("saving...");
+			this.saveModelToJson();
+		}
 	}
 	
 	public void mousePressed(MouseEvent e)

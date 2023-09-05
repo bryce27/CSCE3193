@@ -1,3 +1,4 @@
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -10,11 +11,21 @@ import java.awt.Color;
 
 class View extends JPanel
 {
+	JButton b1;
+	JButton b2;
 	BufferedImage[] images;
 	Model model;
 
 	View(Controller c, Model m, Game game)
 	{
+		// Make a button
+		b1 = new JButton("Load Map");
+		b2 = new JButton("Save Map");
+		b1.addActionListener(c);
+		b2.addActionListener(c);
+		this.add(b1);
+		this.add(b2);
+
 		// Link up to other objects
 		c.setView(this);
 		model = m;
@@ -45,8 +56,6 @@ class View extends JPanel
 
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 
-		// Draw the image so that its bottom center is at (x,y)
-
 		for (int i = 0; i < model.things.size(); i++) {
 			try {
 				int index = model.things.get(i).kind;
@@ -63,15 +72,12 @@ class View extends JPanel
 		g.setColor(new Color(73,71,134));
 		g.fillRect(0, 0, 200, 200);
 
-		// int w = this.images[model.selected_thing].getWidth();
-		// int h = this.images[model.selected_thing].getHeight();
-		//g.drawImage(this.images[current_image], model.turtle_x - w / 2, model.turtle_y - h, null);
 		g.drawImage(this.images[model.selected_thing], 0, 0, null);
 	}
 	
-	void removeButton()
-	{
-		//this.remove(this.b1);
-		this.repaint();
-	}
+	// void removeButton()
+	// {
+	// 	this.remove(this.b1);
+	// 	this.repaint();
+	// }
 }

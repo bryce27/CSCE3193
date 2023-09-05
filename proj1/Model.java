@@ -45,7 +45,6 @@ class Model
 	// find distance between a thing (contains x,y) and given X,Y coords
 	public double calculate_distance(Thing thing, int x, int y){
 		double dist = Math.sqrt((y - thing.y) * (y - thing.y) + (x - thing.x) * (x - thing.x));
-		System.out.println("Distance: " + dist);
 		return dist;
 	}
 
@@ -66,7 +65,6 @@ class Model
 			}
 		}
 
-		System.out.println("Closest thing index: " + closest_thing);
 		this.things.remove(closest_thing);
 	}
 

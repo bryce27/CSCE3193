@@ -34,12 +34,8 @@ class Controller implements ActionListener, MouseListener, KeyListener
 	{
 		model.setDestination(e.getX(), e.getY());
 
-		System.out.println("mouse pressed");
-
 		if ((e.getX() >= 0 && e.getX() <= 200) && (e.getY() >= 0 && e.getY() <= 200) ) {
 			// change what is currently selected
-			System.out.println("View.Images.Length: " + view.images.length);
-			System.out.println("Model SElected thing: " + model.selected_thing);
 			if (model.selected_thing > 8) {
 				model.selected_thing = 0;
 			}
@@ -47,7 +43,6 @@ class Controller implements ActionListener, MouseListener, KeyListener
 				model.selected_thing++;
 			}
 			
-			System.out.println("rotate");
 		} 
 		else if (e.getButton() == 1) {
 			// add "one of those things" to ArrayList

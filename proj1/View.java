@@ -26,7 +26,7 @@ class View extends JPanel
 		for (int i = 0; i < game.THINGS.length; i++) {
 			try {
 				String filename = "images/"+game.THINGS[i]+".png";
-				System.out.println("Filename: " + filename);
+				// System.out.println("Filename: " + filename);
 				this.images[i] = ImageIO.read(new File(filename));
 			} catch(Exception e) {
 				e.printStackTrace(System.err);
@@ -50,8 +50,8 @@ class View extends JPanel
 		for (int i = 0; i < model.things.size(); i++) {
 			try {
 				int index = model.things.get(i).kind;
-				int width = this.images[model.selected_thing].getWidth();
-				int height = this.images[model.selected_thing].getHeight();
+				int width = this.images[index].getWidth();
+				int height = this.images[index].getHeight();
 
 				g.drawImage(this.images[index], model.things.get(i).x - width / 2, model.things.get(i).y - height/2, null);
 			} catch(Exception e) {

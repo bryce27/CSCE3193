@@ -1,4 +1,4 @@
 #!/bin/bash
-set -e
-javac Main.java
-java Main
+set -u -e
+javac Game.java View.java Controller.java
+java Game

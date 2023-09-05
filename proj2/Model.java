@@ -17,10 +17,13 @@ class Thing
 
 	public Json marshal() 
 	{
-		return null;
+		Json thing = Json.newObject();
+		thing.add("kind", this.kind);
+		thing.add("x", this.x);
+		thing.add("y", this.y);
+		return thing;
 	}
 }
-// ****
 
 class Model
 {
@@ -29,11 +32,20 @@ class Model
 	int dest_x;
 	int dest_y;
 	static int speed = 4;
-	// ****
-	// (Step 6): add an ArrayList to hold the things...
+
 	public ArrayList<Thing> things;
-	// ****
-	int selected_thing;
+	int selected_thing; // index
+
+
+	Model()
+	{
+		this.turtle_x = 100;
+		this.turtle_y = 100;
+		this.dest_x = 150;
+		this.dest_y = 100;
+		this.things = new ArrayList<Thing>();
+		this.selected_thing = 0;
+	}
 
 	public Json marshal()
 	{
@@ -46,18 +58,6 @@ class Model
 		}
 		return map;
 	}
-
-	Model()
-	{
-		this.turtle_x = 100;
-		this.turtle_y = 100;
-		this.dest_x = 150;
-		this.dest_y = 100;
-		this.things = new ArrayList<Thing>();
-		this.selected_thing = 0;
-	}
-
-	
 
 	// find distance between a thing (contains x,y) and given X,Y coords
 	public double calculate_distance(Thing thing, int x, int y){

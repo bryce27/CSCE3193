@@ -1,11 +1,17 @@
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.awt.event.MouseEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 
 class Controller implements ActionListener, MouseListener, KeyListener
 {
@@ -37,14 +43,31 @@ class Controller implements ActionListener, MouseListener, KeyListener
 			exception.printStackTrace();
 			System.exit(1);
 		}
-
 	}
+
+	public void loadJsonToModel()
+        throws IOException
+    {
+ 
+        Path fileName = Path.of("map.json");
+        String str = Files.readString(fileName);
+
+		this.model.unmarshal(str);
+		//System.out.println(j);
+    }
 
 	public void actionPerformed(ActionEvent e)
 	{
 		String button_text = e.getActionCommand();
 		if (button_text == "Load Map") {
 			System.out.println("loading map...");
+			try {
+				this.loadJsonToModel();
+				//  Block of code to try
+			  }
+			  catch(Exception ex) {
+				//  Block of code to handle errors
+			  }
 			
 		}
 		else if (button_text == "Save Map") {

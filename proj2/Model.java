@@ -15,6 +15,16 @@ class Thing
 		this.kind = kind;
 	}
 
+	// unmarshaling constructor
+	Thing(Json ob)
+    {
+		System.out.println(ob.get("x"));
+		this.x = (int) ob.getLong("x");
+		//System.out.println(this.x);
+		this.y = (int) ob.getLong("y");
+		this.kind = (int) ob.getLong("kind");
+	}
+
 	public Json marshal() 
 	{
 		Json thing = Json.newObject();
@@ -59,6 +69,17 @@ class Model
 		return map;
 	}
 
+	public void unmarshal(String str)
+	{
+		Json ob = Json.parse(str);
+		Json thingList = ob.get("things");
+		for(int i = 0; i < thingList.size(); i++) {
+			System.out.println(thingList.get(i));
+			this.things.add(new Thing(thingList.get(i)));
+			System.out.println(this.things);
+		}
+	}
+
 	// find distance between a thing (contains x,y) and given X,Y coords
 	public double calculate_distance(Thing thing, int x, int y){
 		double dist = Math.sqrt((y - thing.y) * (y - thing.y) + (x - thing.x) * (x - thing.x));
@@ -66,7 +87,7 @@ class Model
 	}
 
 	public void addThing(int x, int y){ // x and y of the mouse
-		things.add(new Thing(x, y, this.selected_thing));
+		this.things.add(new Thing(x, y, this.selected_thing));
 	}
 
 	public void removeThing(int x, int y){

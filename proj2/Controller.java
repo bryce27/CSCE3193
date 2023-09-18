@@ -108,8 +108,8 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 		int currX = e.getX();
 		int currY = e.getY();
 
-		boolean XinBounds = currX > 100 && currX < 1100;
-		boolean YinBounds = currY > 100 && currY < 600;
+		boolean XinBounds = currX >= 100 && currX <= 1100;
+		boolean YinBounds = currY >= 100 && currY <= 600;
 
 		Point p = MouseInfo.getPointerInfo().getLocation();
 		int screenX = (int)p.getX();
@@ -143,6 +143,19 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 					try {
 						Robot rob = new Robot();
 						rob.mouseMove(screenX, screenY - (currY - 600));
+					}
+					catch(Exception ex) {
+						ex.printStackTrace();
+						System.exit(1);
+					}
+				} else if (currY < 100) {
+					// top margin
+					// how much to move down? 100 - currY
+					// new Y position = screenY + (100 - currY)
+					// move mouse to (screenX, screenY + (100 - currY))
+					try {
+						Robot rob = new Robot();
+						rob.mouseMove(screenX, screenY + (100 - currY));
 					}
 					catch(Exception ex) {
 						ex.printStackTrace();

@@ -105,31 +105,50 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 
 	public void mouseMoved(MouseEvent e) 
 	{
-		// convert to screen coordinates
-		Point p = MouseInfo.getPointerInfo().getLocation();
-		System.out.println("MAP:     X="+e.getX()+", Y="+e.getY());
-		System.out.println("SCREEN:  X="+(int)p.getX()+", Y="+(int)p.getY());
-		// then find 0,0 on the map
-		int deltaY = e.getY() - (int) p.getY();
-		int deltaX = e.getX() - (int) p.getX();
+		int currX = e.getX();
+		int currY = e.getY();
 
-		System.out.println(deltaX);
-		System.out.println(deltaY); // -52
+		boolean XinBounds = currX > 100 && currX < 1100;
+		boolean YinBounds = currY > 100 && currY < 600;
 
-		int currWidth = 1200; // set statically to 1200 in Game.java
-		
-		// System.out.println(e.getX());
-		if (e.getX() > currWidth - 100) {
-			// int diff = currWidth - 100 - e.getX();
-			// try {
-			// 	Robot rob = new Robot();
-			// 	rob.mouseMove((int)p.getX() - diff, (int)p.getY() + deltaY);
-			// }
-			// catch(Exception ex) {
-			// 	ex.printStackTrace();
-			// 	System.exit(1);
-			// }
+		if (XinBounds && YinBounds) {
+			// in bounds
+			System.out.println("IN BOUNDS");
 		}
+		else {
+			// now filter out the horizontal and vertical centers
+			if (XinBounds && !YinBounds) {
+				System.out.println("IN CENTER BOUNDS");
+				// Y is out of bounds
+			}
+			else if (YinBounds && !XinBounds){
+				System.out.println("IN CENTER BOUNDS");
+
+			}
+			else {
+				System.out.println("OUT OF BOUNDS");
+			}
+		}
+
+		Point p = MouseInfo.getPointerInfo().getLocation();
+		int screenX = (int)p.getX();
+		int screenY = (int)p.getY();
+
+		System.out.println("MAP:     X="+currX+", Y="+currY);
+		System.out.println("SCREEN:  X="+screenX+", Y="+screenY);
+		// then find 0,0 on the map
+		int deltaY = currY - screenY;
+		int deltaX = currX - screenX;
+
+		// System.out.println(deltaX);
+		// System.out.println(deltaY); // -52
+
+		// identify the range that's out of bounds
+		// X width is 1200
+		// Y width is 700
+		// try to access these dynamically from Game.____
+
+
 		if (e.getY() < 100) {
 
 			// CASE: TOP RIGHT CORNER

@@ -18,9 +18,8 @@ class Thing
 	// unmarshaling constructor
 	Thing(Json ob)
     {
-		System.out.println(ob.get("x"));
+		// System.out.println(ob.get("x"));
 		this.x = (int) ob.getLong("x");
-		//System.out.println(this.x);
 		this.y = (int) ob.getLong("y");
 		this.kind = (int) ob.getLong("kind");
 	}
@@ -74,9 +73,9 @@ class Model
 		Json ob = Json.parse(str);
 		Json thingList = ob.get("things");
 		for(int i = 0; i < thingList.size(); i++) {
-			System.out.println(thingList.get(i));
+			// System.out.println(thingList.get(i));
 			this.things.add(new Thing(thingList.get(i)));
-			System.out.println(this.things);
+			// System.out.println(this.things);
 		}
 	}
 

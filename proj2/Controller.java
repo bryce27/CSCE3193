@@ -1,4 +1,5 @@
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 
-class Controller implements ActionListener, MouseListener, KeyListener
+class Controller implements ActionListener, MouseListener, MouseMotionListener, KeyListener
 {
 	View view;
 	Model model;
@@ -53,14 +54,13 @@ class Controller implements ActionListener, MouseListener, KeyListener
         String str = Files.readString(fileName);
 
 		this.model.unmarshal(str);
-		//System.out.println(j);
     }
 
 	public void actionPerformed(ActionEvent e)
 	{
 		String button_text = e.getActionCommand();
 		if (button_text == "Load Map") {
-			System.out.println("loading map...");
+			// System.out.println("loading map...");
 			try {
 				this.loadJsonToModel();
 				//  Block of code to try
@@ -71,7 +71,7 @@ class Controller implements ActionListener, MouseListener, KeyListener
 			
 		}
 		else if (button_text == "Save Map") {
-			System.out.println("saving...");
+			// System.out.println("saving...");
 			this.saveModelToJson();
 		}
 	}
@@ -99,6 +99,15 @@ class Controller implements ActionListener, MouseListener, KeyListener
 			model.removeThing(e.getX(), e.getY());
 		}
 	}
+
+	public void mouseMoved(MouseEvent e) 
+	{
+		// System.out.println(e.getX());
+		System.out.println("X="+e.getX()+", Y="+e.getY());
+	}
+	
+	public void mouseDragged(MouseEvent e) 
+	{	}
 
 	public void mouseReleased(MouseEvent e) 
 	{	}

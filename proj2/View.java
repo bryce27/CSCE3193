@@ -15,6 +15,9 @@ class View extends JPanel
 	JButton b2;
 	BufferedImage[] images;
 	Model model;
+	// So add variables to your View class to represent the horizontal and vertical scroll positions of the view
+	int scrollDeltaX = 0;
+	int scrollDeltaY = 0;
 
 	View(Controller c, Model m, Game game)
 	{
@@ -32,6 +35,7 @@ class View extends JPanel
 
 		// Send mouse events to the controller
 		this.addMouseListener(c);
+		this.addMouseMotionListener(c);
 
 		this.images = new BufferedImage[game.THINGS.length];
 		for (int i = 0; i < game.THINGS.length; i++) {
@@ -50,10 +54,8 @@ class View extends JPanel
 	{
 		// Clear the background
 		g.setColor(new Color(128, 255, 255));
-
 		// using this color palette: https://www.color-hex.com/color-palette/100266
 		g.setColor(new Color(132,208,125));
-
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 
 		for (int i = 0; i < model.things.size(); i++) {
@@ -62,7 +64,7 @@ class View extends JPanel
 				int width = this.images[index].getWidth();
 				int height = this.images[index].getHeight();
 
-				g.drawImage(this.images[index], model.things.get(i).x - width / 2, model.things.get(i).y - height/2, null);
+				g.drawImage(this.images[index], (model.things.get(i).x - width / 2) - this.scrollDeltaX, (model.things.get(i).y - height/2) - this.scrollDeltaY, null);
 			} catch(Exception e) {
 				e.printStackTrace(System.err);
 				System.exit(1);

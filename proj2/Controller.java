@@ -111,6 +111,13 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 		boolean XinBounds = currX > 100 && currX < 1100;
 		boolean YinBounds = currY > 100 && currY < 600;
 
+		Point p = MouseInfo.getPointerInfo().getLocation();
+		int screenX = (int)p.getX();
+		int screenY = (int)p.getY();
+
+		System.out.println("MAP:     X="+currX+", Y="+currY);
+		System.out.println("SCREEN:  X="+screenX+", Y="+screenY);
+
 		if (XinBounds && YinBounds) {
 			// in bounds
 			System.out.println("IN BOUNDS");
@@ -119,34 +126,32 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 			// now filter out the horizontal and vertical centers
 			if (XinBounds && !YinBounds) {
 				System.out.println("IN CENTER BOUNDS");
-				// Y is out of bounds
+				// Y is out of bounds, move it back in
+				
 			}
 			else if (YinBounds && !XinBounds){
 				System.out.println("IN CENTER BOUNDS");
-
+				// X is out of bounds, move it back in
 			}
 			else {
 				System.out.println("OUT OF BOUNDS");
+				if (currY > 100) {
+					// bottom margin
+					// how much to move up? currY - 600
+					// new Y position = screenY - (currY - 600)
+					// move mouse to (screenX, screenY - (currY - 600))
+					try {
+						Robot rob = new Robot();
+						rob.mouseMove(screenX, screenY - (currY - 600));
+					}
+					catch(Exception ex) {
+						ex.printStackTrace();
+						System.exit(1);
+					}
+				}
+				// both X and Y are out of bounds, move to closest safe vertex (100, 100) or (100, 600) or (1100, 600) or (1100, 100) 
 			}
 		}
-
-		Point p = MouseInfo.getPointerInfo().getLocation();
-		int screenX = (int)p.getX();
-		int screenY = (int)p.getY();
-
-		System.out.println("MAP:     X="+currX+", Y="+currY);
-		System.out.println("SCREEN:  X="+screenX+", Y="+screenY);
-		// then find 0,0 on the map
-		int deltaY = currY - screenY;
-		int deltaX = currX - screenX;
-
-		// System.out.println(deltaX);
-		// System.out.println(deltaY); // -52
-
-		// identify the range that's out of bounds
-		// X width is 1200
-		// Y width is 700
-		// try to access these dynamically from Game.____
 
 
 		if (e.getY() < 100) {

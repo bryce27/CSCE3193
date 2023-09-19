@@ -51,22 +51,18 @@ class View extends JPanel
 	}
 
 	public void scrollDown(int amount) {
-		System.out.println("SCROLL DOWN: " + amount);
 		this.scrollDeltaY += amount;
 	}
 
 	public void scrollUp(int amount) {
-		System.out.println("SCROLL UP: " + amount);
 		this.scrollDeltaY -= amount;
 	}
 
 	public void scrollRight(int amount) {
-		System.out.println("SCROLL RIGHT: " + amount);
 		this.scrollDeltaX += amount;
 	}
 
 	public void scrollLeft(int amount) {
-		System.out.println("SCROLL LEFT: " + amount);
 		this.scrollDeltaX -= amount;
 	}
 
@@ -84,7 +80,7 @@ class View extends JPanel
 				int width = this.images[index].getWidth();
 				int height = this.images[index].getHeight();
 
-				g.drawImage(this.images[index], (model.things.get(i).x - width / 2) - this.scrollDeltaX, (model.things.get(i).y - height/2) - this.scrollDeltaY, null);
+				g.drawImage(this.images[index], (model.things.get(i).getXPosition() - width / 2) - this.scrollDeltaX, (model.things.get(i).getYPosition() - height/2) - this.scrollDeltaY, null);
 			} catch(Exception e) {
 				e.printStackTrace(System.err);
 				System.exit(1);

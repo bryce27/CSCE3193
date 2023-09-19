@@ -4,8 +4,8 @@ import java.util.ArrayList;
 // (Step 6): In Model, add a class to represent a thing.
 class Thing
 {
-	public int x;
-	public int y;
+	protected int x;
+	protected int y;
 	public int kind;
 
 	Thing(int x, int y, int kind)
@@ -31,6 +31,15 @@ class Thing
 		thing.add("x", this.x);
 		thing.add("y", this.y);
 		return thing;
+	}
+
+	// Add a method to your Thing class to get the position of that thing. Make the "x" and "y" members protected.
+	public int getXPosition() {
+		return this.x;
+	}
+
+	public int getYPosition() {
+		return this.y;
 	}
 }
 
@@ -81,7 +90,7 @@ class Model
 
 	// find distance between a thing (contains x,y) and given X,Y coords
 	public double calculate_distance(Thing thing, int x, int y){
-		double dist = Math.sqrt((y - thing.y) * (y - thing.y) + (x - thing.x) * (x - thing.x));
+		double dist = Math.sqrt((y - thing.getYPosition()) * (y - thing.getYPosition()) + (x - thing.getXPosition()) * (x - thing.getXPosition()));
 		return dist;
 	}
 

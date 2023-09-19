@@ -50,20 +50,24 @@ class View extends JPanel
 		}
 	}
 
-	public void scrollDown() {
-		this.scrollDeltaY += 20;
+	public void scrollDown(int amount) {
+		System.out.println("SCROLL DOWN: " + amount);
+		this.scrollDeltaY += amount;
 	}
 
-	public void scrollUp() {
-		this.scrollDeltaY -= 20;
+	public void scrollUp(int amount) {
+		System.out.println("SCROLL UP: " + amount);
+		this.scrollDeltaY -= amount;
 	}
 
-	public void scrollRight() {
-		this.scrollDeltaX += 20;
+	public void scrollRight(int amount) {
+		System.out.println("SCROLL RIGHT: " + amount);
+		this.scrollDeltaX += amount;
 	}
-	
-	public void scrollLeft() {
-		this.scrollDeltaX -= 20;
+
+	public void scrollLeft(int amount) {
+		System.out.println("SCROLL LEFT: " + amount);
+		this.scrollDeltaX -= amount;
 	}
 
 	public void paintComponent(Graphics g)

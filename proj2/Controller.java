@@ -111,13 +111,12 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 		int screenX = (int)p.getX();
 		int screenY = (int)p.getY();
 
-		// 400 - 800 on X is okay no matter what Y is
 
 		if (currX < 100) {
-			// move mouse out of margin
 			try {
 				Robot rob = new Robot();
 				rob.mouseMove(screenX + (100 - currX), screenY);
+				this.view.scrollLeft((100 - currX));
 			}
 			catch (Exception ex) {
 				ex.printStackTrace();
@@ -127,11 +126,10 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 		}
 
 		if (currX > 1100) {
-			
-			// move mouse out of margin
 			try {
 				Robot rob = new Robot();
 				rob.mouseMove(screenX - (currX - 1100), screenY);
+				this.view.scrollRight((currX - 1100));
 			}
 			catch (Exception ex) {
 				ex.printStackTrace();
@@ -141,10 +139,10 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 		}
 
 		if (currY > 600) {
-			// move mouse out of margin
 			try {
 				Robot rob = new Robot();
 				rob.mouseMove(screenX, screenY - (currY - 600));
+				this.view.scrollDown((currY - 600));
 			}
 			catch (Exception ex) {
 				ex.printStackTrace();
@@ -154,16 +152,18 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 		}
 
 		if (currY < 100) {
-			// move mouse out of margin
-			if (currX > 400 && currX < 800) return;
-			try {
-				Robot rob = new Robot();
-				rob.mouseMove(screenX, screenY - (currY - 100));
+			if (!(currX > 400 && currX < 800)) {
+				try {
+					Robot rob = new Robot();
+					rob.mouseMove(screenX, screenY + (100 - currY));
+					this.view.scrollUp((100 - currY));
+				}
+				catch (Exception ex) {
+					ex.printStackTrace();
+					System.exit(1);
+				}
 			}
-			catch (Exception ex) {
-				ex.printStackTrace();
-				System.exit(1);
-			}
+			
 			// move view in opposite direction
 		}
 

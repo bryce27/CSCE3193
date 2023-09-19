@@ -9,7 +9,7 @@ import java.io.File;
 // import javax.swing.JButton;
 import java.awt.Color;
 
-class View extends JPanel
+public class View extends JPanel
 {
 	JButton b1;
 	JButton b2;
@@ -18,6 +18,7 @@ class View extends JPanel
 	// So add variables to your View class to represent the horizontal and vertical scroll positions of the view
 	int scrollDeltaX = 0;
 	int scrollDeltaY = 0;
+	public int timeCounter = 0;
 
 	View(Controller c, Model m, Game game)
 	{
@@ -68,6 +69,7 @@ class View extends JPanel
 
 	public void paintComponent(Graphics g)
 	{
+		this.timeCounter++;
 		// Clear the background
 		g.setColor(new Color(128, 255, 255));
 		// using this color palette: https://www.color-hex.com/color-palette/100266
@@ -80,7 +82,7 @@ class View extends JPanel
 				int width = this.images[index].getWidth();
 				int height = this.images[index].getHeight();
 
-				g.drawImage(this.images[index], (model.things.get(i).getXPosition() - width / 2) - this.scrollDeltaX, (model.things.get(i).getYPosition() - height/2) - this.scrollDeltaY, null);
+				g.drawImage(this.images[index], ((int)model.things.get(i).getPosition(this.timeCounter).getX() - width / 2) - this.scrollDeltaX, ((int)model.things.get(i).getPosition(this.timeCounter).getY() - height/2) - this.scrollDeltaY, null);
 			} catch(Exception e) {
 				e.printStackTrace(System.err);
 				System.exit(1);
@@ -91,6 +93,8 @@ class View extends JPanel
 		g.fillRect(0, 0, 200, 200);
 
 		g.drawImage(this.images[model.selected_thing], 0, 0, null);
+
+		
 	}
 	
 	// void removeButton()

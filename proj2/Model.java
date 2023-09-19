@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.awt.Point;
+import java.util.concurrent.ThreadLocalRandom;
 
 // ****
 // (Step 6): In Model, add a class to represent a thing.
@@ -41,15 +43,43 @@ class Thing
 	public int getYPosition() {
 		return this.y;
 	}
+
+	public Point getPosition(int timeCounter) {
+		return new Point(this.x, this.y);
+	}
 }
 
-class Model
+class Jumper extends Thing
+{
+	Jumper(int x, int y, int kind) {
+		super(x, y, kind);
+	}
+
+	Jumper(Json ob){
+		super(ob);
+	}
+
+	public Point getPosition(int timeCounter) {
+		System.out.println("JUMPER GET POSITION");
+		//return new Point(this.x, this.y);
+		Point p = new Point(this.x, this.y - (int)Math.max(0., 50 * Math.sin((double)timeCounter / 5)));
+		System.out.println(p);
+		return p;
+
+	}
+
+}
+
+// In Model.java, Make a class named Jumper that inherits from Thing
+
+public class Model
 {
 	int turtle_x;
 	int turtle_y;
 	int dest_x;
 	int dest_y;
 	static int speed = 4;
+	public int timeCounter = 0;
 
 	public ArrayList<Thing> things;
 	int selected_thing; // index
@@ -63,6 +93,20 @@ class Model
 		this.dest_y = 100;
 		this.things = new ArrayList<Thing>();
 		this.selected_thing = 0;
+	}
+
+	public Thing instantiateRandomThing() {
+		// randomize kind
+		// if kind == 9 it's a turtle
+		// so make it a jumper
+		int randomNum = ThreadLocalRandom.current().nextInt(0, 9 + 1);
+		System.out.println(randomNum);
+		randomNum = 9;
+		if (randomNum == 9) {
+			return new Jumper(600, 500, 9);
+		} else {
+			return new Thing(400, 400, randomNum);
+		}
 	}
 
 	public Json marshal()
@@ -83,14 +127,23 @@ class Model
 		Json thingList = ob.get("things");
 		for(int i = 0; i < thingList.size(); i++) {
 			// System.out.println(thingList.get(i));
-			this.things.add(new Thing(thingList.get(i)));
+			int kind = (int) thingList.get(i).getLong("kind");
+			if (kind == 9) {
+				this.things.add(new Jumper(thingList.get(i)));
+			} else {
+				this.things.add(new Thing(thingList.get(i)));
+			}
+			
 			// System.out.println(this.things);
 		}
+		// Thing whatever = this.instantiateRandomThing();
+		// this.things.add(whatever);
+
 	}
 
 	// find distance between a thing (contains x,y) and given X,Y coords
 	public double calculate_distance(Thing thing, int x, int y){
-		double dist = Math.sqrt((y - thing.getYPosition()) * (y - thing.getYPosition()) + (x - thing.getXPosition()) * (x - thing.getXPosition()));
+		double dist = Math.sqrt((y - thing.getPosition(0).getY()) * (y - thing.getPosition(0).getY()) + (x - thing.getPosition(0).getX()) * (x - thing.getPosition(0).getX()));
 		return dist;
 	}
 

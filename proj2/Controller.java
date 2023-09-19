@@ -94,11 +94,11 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 		} 
 		else if (e.getButton() == 1) {
 			// add "one of those things" to ArrayList
-			model.addThing(e.getX(), e.getY());
+			model.addThing(e.getX() + this.view.scrollDeltaX, e.getY() + this.view.scrollDeltaY);
 		}
 		else if (e.getButton() == 3) {
 			// remove the closest thing (euclidian distance)
-			model.removeThing(e.getX(), e.getY());
+			model.removeThing(e.getX() + this.view.scrollDeltaX, e.getY() + this.view.scrollDeltaY);
 		}
 	}
 

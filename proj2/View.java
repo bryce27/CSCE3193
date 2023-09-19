@@ -50,6 +50,22 @@ class View extends JPanel
 		}
 	}
 
+	public void scrollDown() {
+		this.scrollDeltaY += 20;
+	}
+
+	public void scrollUp() {
+		this.scrollDeltaY -= 20;
+	}
+
+	public void scrollRight() {
+		this.scrollDeltaX += 20;
+	}
+	
+	public void scrollLeft() {
+		this.scrollDeltaX -= 20;
+	}
+
 	public void paintComponent(Graphics g)
 	{
 		// Clear the background

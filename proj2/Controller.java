@@ -71,7 +71,6 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 			  catch(Exception ex) {
 				//  Block of code to handle errors
 			  }
-			
 		}
 		else if (button_text == "Save Map") {
 			// System.out.println("saving...");
@@ -108,88 +107,66 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 		int currX = e.getX();
 		int currY = e.getY();
 
-		boolean XinBounds = currX >= 100 && currX <= 1100;
-		boolean YinBounds = currY >= 100 && currY <= 600;
-
 		Point p = MouseInfo.getPointerInfo().getLocation();
 		int screenX = (int)p.getX();
 		int screenY = (int)p.getY();
 
-		System.out.println("MAP:     X="+currX+", Y="+currY);
-		System.out.println("SCREEN:  X="+screenX+", Y="+screenY);
+		// 400 - 800 on X is okay no matter what Y is
 
-		if (XinBounds && YinBounds) {
-			// in bounds
-			System.out.println("IN BOUNDS");
-		}
-		else {
-			// now filter out the horizontal and vertical centers
-			if (XinBounds && !YinBounds) {
-				System.out.println("IN CENTER BOUNDS");
-				// Y is out of bounds, move it back in
-				
+		if (currX < 100) {
+			// move mouse out of margin
+			try {
+				Robot rob = new Robot();
+				rob.mouseMove(screenX + (100 - currX), screenY);
 			}
-			else if (YinBounds && !XinBounds){
-				System.out.println("IN CENTER BOUNDS");
-				// X is out of bounds, move it back in
+			catch (Exception ex) {
+				ex.printStackTrace();
+				System.exit(1);
 			}
-			else {
-				System.out.println("OUT OF BOUNDS");
-				if (currY > 100) {
-					// bottom margin
-					// how much to move up? currY - 600
-					// new Y position = screenY - (currY - 600)
-					// move mouse to (screenX, screenY - (currY - 600))
-					try {
-						Robot rob = new Robot();
-						rob.mouseMove(screenX, screenY - (currY - 600));
-					}
-					catch(Exception ex) {
-						ex.printStackTrace();
-						System.exit(1);
-					}
-				} else if (currY < 100) {
-					// top margin
-					// how much to move down? 100 - currY
-					// new Y position = screenY + (100 - currY)
-					// move mouse to (screenX, screenY + (100 - currY))
-					try {
-						Robot rob = new Robot();
-						rob.mouseMove(screenX, screenY + (100 - currY));
-					}
-					catch(Exception ex) {
-						ex.printStackTrace();
-						System.exit(1);
-					}
-				}
-				// both X and Y are out of bounds, move to closest safe vertex (100, 100) or (100, 600) or (1100, 600) or (1100, 100) 
-			}
+			// move view in opposite direction
 		}
 
-
-		if (e.getY() < 100) {
-
-			// CASE: TOP RIGHT CORNER
-
-			// move the cursor back out using Robot.mouseMove
-			// it's in the margin, but how far away?
-			// int howFarToMoveY = 100 - e.getY();
-			// // int howFarToMoveX = e.getX() - 100;
-
-			// try {
-			// 	Robot rob = new Robot();
-			// 	rob.mouseMove(e.getX(), (int)p.getY() + howFarToMoveY);
-			// }
-			// catch(Exception ex) {
-			// 	ex.printStackTrace();
-			// 	System.exit(1);
-			// }
+		if (currX > 1100) {
 			
-			// get current mouse position in terms of screen coordinates
-			
-
+			// move mouse out of margin
+			try {
+				Robot rob = new Robot();
+				rob.mouseMove(screenX - (currX - 1100), screenY);
+			}
+			catch (Exception ex) {
+				ex.printStackTrace();
+				System.exit(1);
+			}
+			// move view in opposite direction
 		}
-		
+
+		if (currY > 600) {
+			// move mouse out of margin
+			try {
+				Robot rob = new Robot();
+				rob.mouseMove(screenX, screenY - (currY - 600));
+			}
+			catch (Exception ex) {
+				ex.printStackTrace();
+				System.exit(1);
+			}
+			// move view in opposite direction
+		}
+
+		if (currY < 100) {
+			// move mouse out of margin
+			if (currX > 400 && currX < 800) return;
+			try {
+				Robot rob = new Robot();
+				rob.mouseMove(screenX, screenY - (currY - 100));
+			}
+			catch (Exception ex) {
+				ex.printStackTrace();
+				System.exit(1);
+			}
+			// move view in opposite direction
+		}
+
 	}
 	
 	public void mouseDragged(MouseEvent e) 
@@ -232,6 +209,7 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 		{
 			case KeyEvent.VK_RIGHT: 
 				keyRight = false; 
+				
 				break;
 			case KeyEvent.VK_LEFT: 
 				keyLeft = false; 

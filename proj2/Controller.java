@@ -64,17 +64,13 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 	{
 		String button_text = e.getActionCommand();
 		if (button_text == "Load Map") {
-			// System.out.println("loading map...");
 			try {
 				this.loadJsonToModel();
-				//  Block of code to try
 			  }
 			  catch(Exception ex) {
-				//  Block of code to handle errors
 			  }
 		}
 		else if (button_text == "Save Map") {
-			// System.out.println("saving...");
 			this.saveModelToJson();
 		}
 	}

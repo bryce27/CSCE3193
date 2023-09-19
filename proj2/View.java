@@ -42,7 +42,6 @@ public class View extends JPanel
 		for (int i = 0; i < game.THINGS.length; i++) {
 			try {
 				String filename = "images/"+game.THINGS[i]+".png";
-				// System.out.println("Filename: " + filename);
 				this.images[i] = ImageIO.read(new File(filename));
 			} catch(Exception e) {
 				e.printStackTrace(System.err);

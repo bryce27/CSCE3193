@@ -20,7 +20,6 @@ class Thing
 	// unmarshaling constructor
 	Thing(Json ob)
     {
-		// System.out.println(ob.get("x"));
 		this.x = (int) ob.getLong("x");
 		this.y = (int) ob.getLong("y");
 		this.kind = (int) ob.getLong("kind");
@@ -60,12 +59,7 @@ class Jumper extends Thing
 	}
 
 	public Point getPosition(int timeCounter) {
-		System.out.println("JUMPER GET POSITION");
-		//return new Point(this.x, this.y);
-		Point p = new Point(this.x, this.y - (int)Math.max(0., 50 * Math.sin((double)timeCounter / 5)));
-		System.out.println(p);
-		return p;
-
+		return new Point(this.x, this.y - (int)Math.max(0., 50 * Math.sin((double)timeCounter / 5)));
 	}
 
 }
@@ -96,12 +90,7 @@ public class Model
 	}
 
 	public Thing instantiateRandomThing() {
-		// randomize kind
-		// if kind == 9 it's a turtle
-		// so make it a jumper
 		int randomNum = ThreadLocalRandom.current().nextInt(0, 9 + 1);
-		System.out.println(randomNum);
-		randomNum = 9;
 		if (randomNum == 9) {
 			return new Jumper(600, 500, 9);
 		} else {
@@ -126,19 +115,13 @@ public class Model
 		Json ob = Json.parse(str);
 		Json thingList = ob.get("things");
 		for(int i = 0; i < thingList.size(); i++) {
-			// System.out.println(thingList.get(i));
 			int kind = (int) thingList.get(i).getLong("kind");
 			if (kind == 9) {
 				this.things.add(new Jumper(thingList.get(i)));
 			} else {
 				this.things.add(new Thing(thingList.get(i)));
 			}
-			
-			// System.out.println(this.things);
 		}
-		// Thing whatever = this.instantiateRandomThing();
-		// this.things.add(whatever);
-
 	}
 
 	// find distance between a thing (contains x,y) and given X,Y coords

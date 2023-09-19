@@ -80,14 +80,12 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 		model.setDestination(e.getX(), e.getY());
 
 		if ((e.getX() >= 0 && e.getX() <= 200) && (e.getY() >= 0 && e.getY() <= 200) ) {
-			// change what is currently selected
 			if (model.selected_thing > 8) {
 				model.selected_thing = 0;
 			}
 			else {
 				model.selected_thing++;
 			}
-			
 		} 
 		else if (e.getButton() == 1) {
 			// add "one of those things" to ArrayList
@@ -119,7 +117,6 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 				ex.printStackTrace();
 				System.exit(1);
 			}
-			// move view in opposite direction
 		}
 
 		if (currX > 1100) {
@@ -132,7 +129,6 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 				ex.printStackTrace();
 				System.exit(1);
 			}
-			// move view in opposite direction
 		}
 
 		if (currY > 600) {
@@ -145,7 +141,6 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 				ex.printStackTrace();
 				System.exit(1);
 			}
-			// move view in opposite direction
 		}
 
 		if (currY < 100) {
@@ -160,10 +155,7 @@ class Controller implements ActionListener, MouseListener, MouseMotionListener, 
 					System.exit(1);
 				}
 			}
-			
-			// move view in opposite direction
 		}
-
 	}
 	
 	public void mouseDragged(MouseEvent e) 

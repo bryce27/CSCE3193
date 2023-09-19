@@ -2,8 +2,6 @@ import java.util.ArrayList;
 import java.awt.Point;
 import java.util.concurrent.ThreadLocalRandom;
 
-// ****
-// (Step 6): In Model, add a class to represent a thing.
 class Thing
 {
 	protected int x;
@@ -63,8 +61,6 @@ class Jumper extends Thing
 	}
 
 }
-
-// In Model.java, Make a class named Jumper that inherits from Thing
 
 public class Model
 {

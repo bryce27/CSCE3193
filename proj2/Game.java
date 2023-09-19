@@ -31,8 +31,6 @@ public class Game extends JFrame
 		this.setTitle("Map Editor!");
 		this.setSize(1200, 700);
 		
-		// set zoom / scale here too?
-
 		this.setFocusable(true);
 		this.getContentPane().add(view);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

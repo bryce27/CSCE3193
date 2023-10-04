@@ -1,5 +1,17 @@
+type UpdateMethod = () => void;
+type OnClickMethod = (x: number, y: number) => void;
+
 class Sprite {
-	constructor(x, y, image_url, update_method, onclick_method) {
+	x: number;
+	y: number;
+	dest_x?: number;
+    dest_y?: number;
+	speed: number;
+	image: HTMLImageElement;
+	update: UpdateMethod;
+	onclick: OnClickMethod;
+
+	constructor(x: number, y: number, image_url: string, update_method: UpdateMethod, onclick_method: OnClickMethod) {
 		this.x = x;
 		this.y = y;
         this.speed = 4;
@@ -9,21 +21,24 @@ class Sprite {
 		this.onclick = onclick_method;
 	}
 
-	set_destination(x, y) {
+	set_destination(x: number, y: number) {
 		this.dest_x = x;
 		this.dest_y = y;
 	}
 
-	ignore_click(x, y) {
+	ignore_click(x: number, y: number) {
 	}
 
-	move(dx, dy) {
+	move(dx: number, dy: number) {
 		this.dest_x = this.x + dx;
 		this.dest_y = this.y + dy;
 	}
 
 	go_toward_destination() {
 		if(this.dest_x === undefined)
+			return;
+
+		if(this.dest_y === undefined)
 			return;
 
 		if(this.x < this.dest_x)
@@ -41,11 +56,10 @@ class Sprite {
 }
 
 
-
-
-
-
 class Model {
+	sprites: Sprite[] = [];
+	turtle: Sprite;
+
 	constructor() {
 		this.sprites = [];
 		this.sprites.push(new Sprite(200, 100, "lettuce.png", Sprite.prototype.sit_still, Sprite.prototype.ignore_click));
@@ -54,52 +68,56 @@ class Model {
 	}
 
 	update() {
-		for (const sprite of this.sprites) {
+		for (let sprite of this.sprites) {
 			sprite.update();
 		}
 	}
 
-	onclick(x, y) {
-		for (const sprite of this.sprites) {
+	onclick(x: number, y: number) {
+		for (let sprite of this.sprites) {
 			sprite.onclick(x, y);
 		}
 	}
 
-	move(dx, dy) {
+	move(dx: number, dy: number) {
 		this.turtle.move(dx, dy);
 	}
 }
 
 
-
-
 class View
 {
-	constructor(model) {
+	model: Model;
+    canvas: HTMLCanvasElement;
+    turtle: HTMLImageElement;
+
+	constructor(model: Model) {
 		this.model = model;
-		this.canvas = document.getElementById("myCanvas");
+		this.canvas = document.getElementById("myCanvas") as HTMLCanvasElement;
 		this.turtle = new Image();
 		this.turtle.src = "turtle.png";
 	}
 
 	update() {
 		let ctx = this.canvas.getContext("2d");
-		ctx.clearRect(0, 0, 1000, 500);
-		for (const sprite of this.model.sprites) {
-			ctx.drawImage(sprite.image, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height);
+		ctx!.clearRect(0, 0, 1000, 500);
+		for (let sprite of this.model.sprites) {
+			ctx!.drawImage(sprite.image, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height);
 		}
 	}
 }
 
 
-
-
-
-
-
 class Controller
 {
-	constructor(model, view) {
+	model: Model;
+    view: View;
+    key_right: boolean = false;
+    key_left: boolean = false;
+    key_up: boolean = false;
+    key_down: boolean = false;
+
+	constructor(model: Model, view: View) {
 		this.model = model;
 		this.view = view;
 		this.key_right = false;
@@ -112,20 +130,20 @@ class Controller
 		document.addEventListener('keyup', function(event) { self.keyUp(event); }, false);
 	}
 
-	onClick(event) {
-		const x = event.pageX - this.view.canvas.offsetLeft;
-		const y = event.pageY - this.view.canvas.offsetTop;
+	onClick(event: MouseEvent) {
+		let x = event.pageX - this.view.canvas.offsetLeft;
+		let y = event.pageY - this.view.canvas.offsetTop;
 		this.model.onclick(x, y);
 	}
 
-	keyDown(event) {
+	keyDown(event: KeyboardEvent) {
 		if(event.keyCode == 39) this.key_right = true;
 		else if(event.keyCode == 37) this.key_left = true;
 		else if(event.keyCode == 38) this.key_up = true;
 		else if(event.keyCode == 40) this.key_down = true;
 	}
 
-	keyUp(event) {
+	keyUp(event: KeyboardEvent) {
 		if(event.keyCode == 39) this.key_right = false;
 		else if(event.keyCode == 37) this.key_left = false;
 		else if(event.keyCode == 38) this.key_up = false;
@@ -146,10 +164,11 @@ class Controller
 }
 
 
-
-
-
 class Game {
+	model: Model;
+    view: View;
+    controller: Controller;
+
 	constructor() {
 		this.model = new Model();
 		this.view = new View(this.model);

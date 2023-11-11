@@ -294,6 +294,8 @@ class Game {
 	}
 }
 
+
+
 const insert_canvas = () => {
 	let s: string[] = [];
 	s.push(`<canvas id="myCanvas" width="1000" height="500" style="border:1px solid #cccccc;">`);
@@ -302,6 +304,27 @@ const insert_canvas = () => {
 	content!.innerHTML = s.join('');
 }
 
-insert_canvas()
-let game = new Game();
-let timer = setInterval(() => { game.onTimer(); }, 40);
+let clicked = () => {
+	let text_field = document.getElementById('character_name');
+	insert_canvas()
+	let game = new Game();
+	let timer = setInterval(() => { game.onTimer(); }, 40);
+	// text_field.value
+	// put ^ into game
+	// my_div.innerHTML = my_div.innerHTML + "<font color='red'>Text</font>";
+}
+
+const insert_story = () => {
+	let content = document.getElementById('content') as HTMLInputElement | null;
+	content!.innerHTML = "<h2>Banana Quest: The Potassium Crisis</h2>"
+		+ "<p>In a land known as \"Fruitopia,\" the inhabitants thrived on the delicious and nutritious fruits that grew abundantly. One fruit, in particular, was highly treasured - the mighty banana. Fruitopia's inhabitants had always enjoyed the health benefits and energy provided by this potassium-rich treat, which fueled their daily adventures and brought joy to their lives.</p>"
+		+ "<p>But one day, a mysterious phenomenon occurred: the banana crops across Fruitopia began to wither, and the supply of this essential fruit dwindled rapidly.As the days passed, the once energetic and lively inhabitants of Fruitopia started to feel weak and fatigued. The doctors and scientists of the land quickly identified the cause - a severe potassium deficiency was spreading among the residents, and it threatened to plunge Fruitopia into a state of perpetual lethargy.Desperate to restore the health and vitality of their beloved land, the citizens of Fruitopia are turning to you to help them find 20 bananas.The fate of Fruitopia hangs in the balance.</p>"
+		+ "<p>tl;dr: Find 20 bananas to win.</p>" 
+		+ "<p>If you are willing to undertake this noble quest, please enter your name:</p>" 
+	content!.style.wordWrap = 'break-word';
+	content!.style.width = '600px';
+}
+
+// insert_canvas()
+insert_story()
+

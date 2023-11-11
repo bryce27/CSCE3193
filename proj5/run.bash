@@ -3,6 +3,9 @@ set -e
 pushd front_end
 echo "Type-checking the front end"
 tsc --strict main.ts
+
+#python3 upload.py
+
 popd
 echo "Type-checking the back end"
 pushd back_end

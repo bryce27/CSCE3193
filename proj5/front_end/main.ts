@@ -148,23 +148,19 @@ class View
 		ctx!.clearRect(0, 0, 1000, 500);
 
 		// auto scroll
-		const center_x = 500;
-		const center_y = 270;
-		const scroll_rate = 0.03;
-		g_scroll_x += scroll_rate * (this.model.character.x - g_scroll_x - center_x);
-		g_scroll_y += scroll_rate * (this.model.character.y - g_scroll_y - center_y);
-		console.log(g_scroll_x)
-		console.log(g_scroll_y)
+		// const center_x = 500;
+		// const center_y = 270;
+		// const scroll_rate = 0.03;
+		// g_scroll_x += scroll_rate * (this.model.character.x - g_scroll_x - center_x);
+		// g_scroll_y += scroll_rate * (this.model.character.y - g_scroll_y - center_y);
+		// console.log(g_scroll_x)
+		// console.log(g_scroll_y)
 
 		for (let sprite of this.model.sprites) {
 			ctx!.drawImage(sprite.image, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height);
-			// find player connected to this sprite
 			ctx!.fillText(sprite.label, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height - 10);
-
 		}
 		
-		
-
 	}
 }
 
@@ -321,7 +317,6 @@ class Controller
 		// console.log(`Response to move: ${JSON.stringify(ob)}`);
 	}
 
-
 }
 
 
@@ -368,10 +363,22 @@ let start = () => {
 	save_character_name();
 	remove_input();
 	insert_canvas();
+	insert_scoreboard()
 	
 	let game = new Game();
 	let timer = setInterval(() => { game.onTimer(); }, 40);
-	
+}
+
+const insert_scoreboard = () => {
+	let content = document.getElementById('content') as HTMLInputElement | null;
+	let scoreboard = "<br><big><big><b>Gold: <span id='gold'>0</span>, Bananas: <span id='bananas'>0</span></b></big></big><br>"
+	content!.innerHTML = content!.innerHTML + scoreboard;
+}
+
+const insert_input = () => {
+	let content = document.getElementById('content') as HTMLInputElement | null;
+	let inputs = "<input type='text' id='character_name'></input><button id='start_button' style='margin-top: 10px' onclick='start();'>Start</button>"
+	content!.innerHTML = content!.innerHTML + inputs;
 }
 
 const insert_story = () => {
@@ -386,13 +393,18 @@ const insert_story = () => {
 }
 
 const on_receive_map = (ob:any) => {
-
+	console.log(`ob = ${JSON.stringify(ob)}`)
+	if (ob.status === 'error') {
+		console.log(`!!! Server replied: ${ob.message}`);
+		return;
+	  }
 }
 
 // populate HTML
 insert_story()
+insert_input()
 
-// request map
-// httpPost('ajax', {
+// request map from Gashler server
+// httpPost('ajax.html', {
 // 	action: 'get_map',
 // }, on_receive_map);

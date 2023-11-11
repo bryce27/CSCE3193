@@ -120,17 +120,16 @@ var View = /** @class */ (function () {
         ctx.font = "20px Verdana";
         ctx.clearRect(0, 0, 1000, 500);
         // auto scroll
-        var center_x = 500;
-        var center_y = 270;
-        var scroll_rate = 0.03;
-        g_scroll_x += scroll_rate * (this.model.character.x - g_scroll_x - center_x);
-        g_scroll_y += scroll_rate * (this.model.character.y - g_scroll_y - center_y);
-        console.log(g_scroll_x);
-        console.log(g_scroll_y);
+        // const center_x = 500;
+        // const center_y = 270;
+        // const scroll_rate = 0.03;
+        // g_scroll_x += scroll_rate * (this.model.character.x - g_scroll_x - center_x);
+        // g_scroll_y += scroll_rate * (this.model.character.y - g_scroll_y - center_y);
+        // console.log(g_scroll_x)
+        // console.log(g_scroll_y)
         for (var _i = 0, _a = this.model.sprites; _i < _a.length; _i++) {
             var sprite = _a[_i];
             ctx.drawImage(sprite.image, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height);
-            // find player connected to this sprite
             ctx.fillText(sprite.label, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height - 10);
         }
     };
@@ -318,8 +317,19 @@ var start = function () {
     save_character_name();
     remove_input();
     insert_canvas();
+    insert_scoreboard();
     var game = new Game();
     var timer = setInterval(function () { game.onTimer(); }, 40);
+};
+var insert_scoreboard = function () {
+    var content = document.getElementById('content');
+    var scoreboard = "<br><big><big><b>Gold: <span id='gold'>0</span>, Bananas: <span id='bananas'>0</span></b></big></big><br>";
+    content.innerHTML = content.innerHTML + scoreboard;
+};
+var insert_input = function () {
+    var content = document.getElementById('content');
+    var inputs = "<input type='text' id='character_name'></input><button id='start_button' style='margin-top: 10px' onclick='start();'>Start</button>";
+    content.innerHTML = content.innerHTML + inputs;
 };
 var insert_story = function () {
     var content = document.getElementById('content');
@@ -332,10 +342,16 @@ var insert_story = function () {
     content.style.width = '600px';
 };
 var on_receive_map = function (ob) {
+    console.log("ob = ".concat(JSON.stringify(ob)));
+    if (ob.status === 'error') {
+        console.log("!!! Server replied: ".concat(ob.message));
+        return;
+    }
 };
 // populate HTML
 insert_story();
-// request map
-// httpPost('ajax', {
+insert_input();
+// request map from Gashler server
+// httpPost('ajax.html', {
 // 	action: 'get_map',
 // }, on_receive_map);

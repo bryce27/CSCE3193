@@ -6,12 +6,13 @@ from typing import Dict, List, Tuple
 class Player:
     def __init__(self, id:str) -> None:
         self.id = id
+        self.name = ''
         self.x = 0
         self.y = 0
         self.what_i_know = 0 
 
 players: Dict[str, Player] = {}
-history: List[Tuple[str, int, int]] = []
+history: List[Tuple[str, str, int, int]] = []
 
 
 def find_or_create_player(id:str) -> Any:
@@ -31,8 +32,9 @@ def ajax(req: Mapping[str, Any]) -> Mapping[str, Any]:
         player = find_or_create_player(req['id'])
         player.x = req['x']
         player.y = req['y']
+        player.name = req['name']
 
-        history.append((player.id, player.x, player.y))
+        history.append((player.id, player.name, player.x, player.y))
 
         return {
             'message': 'OK',

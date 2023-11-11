@@ -19,7 +19,11 @@ var Sprite = /** @class */ (function () {
         this.image.src = image_url;
         this.update = update_method;
         this.onclick = onclick_method;
+        this.label = '';
     }
+    Sprite.prototype.set_label = function (name) {
+        this.label = name;
+    };
     Sprite.prototype.set_destination = function (x, y) {
         this.dest_x = x;
         this.dest_y = y;
@@ -60,6 +64,7 @@ var random_id = function (len) {
 };
 var g_origin = new URL(window.location.href).origin;
 var g_id = random_id(12);
+var g_name = '';
 var Model = /** @class */ (function () {
     function Model() {
         this.sprites = [];
@@ -95,10 +100,13 @@ var View = /** @class */ (function () {
     }
     View.prototype.update = function () {
         var ctx = this.canvas.getContext("2d");
+        ctx.font = "20px Verdana";
         ctx.clearRect(0, 0, 1000, 500);
         for (var _i = 0, _a = this.model.sprites; _i < _a.length; _i++) {
             var sprite = _a[_i];
             ctx.drawImage(sprite.image, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height);
+            // find player connected to this sprite
+            ctx.fillText(sprite.label, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height - 10);
         }
     };
     return View;
@@ -168,6 +176,7 @@ var Controller = /** @class */ (function () {
         this.model.onclick(x, y);
         httpPost('ajax', {
             id: g_id,
+            name: g_name,
             action: 'click',
             x: x,
             y: y,
@@ -198,16 +207,19 @@ var Controller = /** @class */ (function () {
         for (var i = 0; i < ob.updates.length; i++) {
             var update = ob.updates[i];
             var id = update[0];
-            var x = update[1];
-            var y = update[2];
+            var name_1 = update[1];
+            var x = update[2];
+            var y = update[3];
             var sprite = sprite_map[id];
             if (sprite === undefined) {
                 var s = new Sprite(x, y, "green_robot.png", Sprite.prototype.go_toward_destination, Sprite.prototype.ignore_click);
+                s.set_label(name_1);
                 s.set_destination(x, y);
                 this.model.sprites.push(s);
                 sprite_map[id] = s;
             }
             else {
+                sprite.set_label(name_1);
                 sprite.set_destination(x, y);
             }
         }
@@ -259,6 +271,7 @@ var Game = /** @class */ (function () {
     };
     return Game;
 }());
+// Project 5 game intro stuff
 var insert_canvas = function () {
     var s = [];
     s.push("<canvas id=\"myCanvas\" width=\"1000\" height=\"500\" style=\"border:1px solid #cccccc;\">");
@@ -266,14 +279,22 @@ var insert_canvas = function () {
     var content = document.getElementById('content');
     content.innerHTML = s.join('');
 };
-var clicked = function () {
-    var text_field = document.getElementById('character_name');
+var save_character_name = function () {
+    var character_name = document.getElementById('character_name');
+    g_name = character_name.value; // casted to make work with TS per SO.com
+};
+var remove_input = function () {
+    var character_name = document.getElementById('character_name');
+    var start_button = document.getElementById('start_button');
+    character_name.remove();
+    start_button.remove();
+};
+var start = function () {
+    save_character_name();
+    remove_input();
     insert_canvas();
     var game = new Game();
     var timer = setInterval(function () { game.onTimer(); }, 40);
-    // text_field.value
-    // put ^ into game
-    // my_div.innerHTML = my_div.innerHTML + "<font color='red'>Text</font>";
 };
 var insert_story = function () {
     var content = document.getElementById('content');
@@ -285,5 +306,5 @@ var insert_story = function () {
     content.style.wordWrap = 'break-word';
     content.style.width = '600px';
 };
-// insert_canvas()
+// populate HTML
 insert_story();

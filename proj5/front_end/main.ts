@@ -2,6 +2,7 @@ type UpdateMethod = () => void;
 type OnClickMethod = (x: number, y: number) => void;
 
 class Sprite {
+	label: string;
 	x: number;
 	y: number;
 	dest_x?: number;
@@ -21,6 +22,11 @@ class Sprite {
 		this.image.src = image_url;
 		this.update = update_method;
 		this.onclick = onclick_method;
+		this.label = '';
+	}
+
+	set_label(name: string) {
+		this.label = name;
 	}
 
 	set_destination(x: number, y: number) {
@@ -72,6 +78,7 @@ const random_id = (len:number) => { // for ID generation
 
 const g_origin = new URL(window.location.href).origin;
 const g_id = random_id(12);
+let g_name = ''
 
 class Model {
 	sprites: Sprite[] = [];
@@ -118,9 +125,13 @@ class View
 
 	update() {
 		let ctx = this.canvas.getContext("2d");
+		ctx!.font = "20px Verdana";
 		ctx!.clearRect(0, 0, 1000, 500);
 		for (let sprite of this.model.sprites) {
 			ctx!.drawImage(sprite.image, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height);
+			// find player connected to this sprite
+			ctx!.fillText(sprite.label, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height - 10);
+
 		}
 	}
 }
@@ -200,6 +211,7 @@ class Controller
 
 		httpPost('ajax', {
 			id: g_id,
+			name: g_name,
 			action: 'click',
 			x: x,
 			y: y,
@@ -227,16 +239,19 @@ class Controller
 			let update = ob.updates[i];
 
 			let id = update[0];
-			let x = update[1];
-			let y = update[2];
+			let name = update[1];
+			let x = update[2];
+			let y = update[3];
 
 			let sprite = sprite_map[id];
 			if (sprite === undefined) {
 				let s = new Sprite(x, y, "green_robot.png", Sprite.prototype.go_toward_destination, Sprite.prototype.ignore_click);
+				s.set_label(name);
 				s.set_destination(x,y);
 				this.model.sprites.push(s)
 				sprite_map[id] = s
 			} else {
+				sprite.set_label(name);
 				sprite.set_destination(x,y);
 			}
 		}
@@ -294,8 +309,7 @@ class Game {
 	}
 }
 
-
-
+// Project 5 game intro stuff
 const insert_canvas = () => {
 	let s: string[] = [];
 	s.push(`<canvas id="myCanvas" width="1000" height="500" style="border:1px solid #cccccc;">`);
@@ -304,14 +318,26 @@ const insert_canvas = () => {
 	content!.innerHTML = s.join('');
 }
 
-let clicked = () => {
-	let text_field = document.getElementById('character_name');
-	insert_canvas()
+const save_character_name = () => {
+	const character_name = document.getElementById('character_name');
+	g_name = (<HTMLInputElement>character_name).value; // casted to make work with TS per SO.com
+}
+
+const remove_input = () => {
+	const character_name = document.getElementById('character_name');
+	const start_button = document.getElementById('start_button');
+	character_name!.remove();
+	start_button!.remove();
+}
+
+let start = () => {
+	save_character_name();
+	remove_input();
+	insert_canvas();
+	
 	let game = new Game();
 	let timer = setInterval(() => { game.onTimer(); }, 40);
-	// text_field.value
-	// put ^ into game
-	// my_div.innerHTML = my_div.innerHTML + "<font color='red'>Text</font>";
+	
 }
 
 const insert_story = () => {
@@ -325,6 +351,5 @@ const insert_story = () => {
 	content!.style.width = '600px';
 }
 
-// insert_canvas()
+// populate HTML
 insert_story()
-

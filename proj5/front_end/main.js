@@ -8,6 +8,21 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
+var thing_names = [
+    "chair",
+    "lamp",
+    "mushroom",
+    "outhouse",
+    "pillar",
+    "pond",
+    "rock",
+    "statue",
+    "tree",
+    "turtle",
+];
+var convert_thing_index_to_image = function (index) {
+    return "".concat(thing_names[index], ".png");
+};
 var Sprite = /** @class */ (function () {
     function Sprite(x, y, image_url, update_method, onclick_method) {
         this.x = x;
@@ -65,12 +80,14 @@ var random_id = function (len) {
 var g_origin = new URL(window.location.href).origin;
 var g_id = random_id(12);
 var g_name = '';
+var g_scroll_x = 0;
+var g_scroll_y = 0;
 var Model = /** @class */ (function () {
     function Model() {
         this.sprites = [];
         this.sprites = [];
         this.sprites.push(new Sprite(200, 100, "lettuce.png", Sprite.prototype.sit_still, Sprite.prototype.ignore_click));
-        this.character = new Sprite(50, 50, "blue_robot.png", Sprite.prototype.go_toward_destination, Sprite.prototype.set_destination);
+        this.character = new Sprite(350, 50, "blue_robot.png", Sprite.prototype.go_toward_destination, Sprite.prototype.set_destination);
         this.sprites.push(this.character);
         sprite_map[g_id] = this.character;
     }
@@ -102,6 +119,14 @@ var View = /** @class */ (function () {
         var ctx = this.canvas.getContext("2d");
         ctx.font = "20px Verdana";
         ctx.clearRect(0, 0, 1000, 500);
+        // auto scroll
+        var center_x = 500;
+        var center_y = 270;
+        var scroll_rate = 0.03;
+        g_scroll_x += scroll_rate * (this.model.character.x - g_scroll_x - center_x);
+        g_scroll_y += scroll_rate * (this.model.character.y - g_scroll_y - center_y);
+        console.log(g_scroll_x);
+        console.log(g_scroll_y);
         for (var _i = 0, _a = this.model.sprites; _i < _a.length; _i++) {
             var sprite = _a[_i];
             ctx.drawImage(sprite.image, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height);
@@ -306,5 +331,11 @@ var insert_story = function () {
     content.style.wordWrap = 'break-word';
     content.style.width = '600px';
 };
+var on_receive_map = function (ob) {
+};
 // populate HTML
 insert_story();
+// request map
+// httpPost('ajax', {
+// 	action: 'get_map',
+// }, on_receive_map);

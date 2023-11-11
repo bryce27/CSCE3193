@@ -1,6 +1,23 @@
 type UpdateMethod = () => void;
 type OnClickMethod = (x: number, y: number) => void;
 
+const thing_names = [
+	"chair", // 0
+	"lamp",
+	"mushroom", // 2
+	"outhouse",
+	"pillar", // 4
+	"pond",
+	"rock", // 6
+	"statue",
+	"tree", // 8
+	"turtle",
+];
+
+const convert_thing_index_to_image = (index:number) => {
+	return `${thing_names[index]}.png`
+}
+
 class Sprite {
 	label: string;
 	x: number;
@@ -78,7 +95,9 @@ const random_id = (len:number) => { // for ID generation
 
 const g_origin = new URL(window.location.href).origin;
 const g_id = random_id(12);
-let g_name = ''
+let g_name = '';
+let g_scroll_x = 0;
+let g_scroll_y = 0;
 
 class Model {
 	sprites: Sprite[] = [];
@@ -87,7 +106,7 @@ class Model {
 	constructor() {
 		this.sprites = [];
 		this.sprites.push(new Sprite(200, 100, "lettuce.png", Sprite.prototype.sit_still, Sprite.prototype.ignore_click));
-		this.character = new Sprite(50, 50, "blue_robot.png", Sprite.prototype.go_toward_destination, Sprite.prototype.set_destination);
+		this.character = new Sprite(350, 50, "blue_robot.png", Sprite.prototype.go_toward_destination, Sprite.prototype.set_destination);
 		this.sprites.push(this.character);
 		sprite_map[g_id] = this.character;
 	}
@@ -127,12 +146,25 @@ class View
 		let ctx = this.canvas.getContext("2d");
 		ctx!.font = "20px Verdana";
 		ctx!.clearRect(0, 0, 1000, 500);
+
+		// auto scroll
+		const center_x = 500;
+		const center_y = 270;
+		const scroll_rate = 0.03;
+		g_scroll_x += scroll_rate * (this.model.character.x - g_scroll_x - center_x);
+		g_scroll_y += scroll_rate * (this.model.character.y - g_scroll_y - center_y);
+		console.log(g_scroll_x)
+		console.log(g_scroll_y)
+
 		for (let sprite of this.model.sprites) {
 			ctx!.drawImage(sprite.image, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height);
 			// find player connected to this sprite
 			ctx!.fillText(sprite.label, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height - 10);
 
 		}
+		
+		
+
 	}
 }
 
@@ -288,6 +320,8 @@ class Controller
 	onAcknowledgeClick(ob: any) {
 		// console.log(`Response to move: ${JSON.stringify(ob)}`);
 	}
+
+
 }
 
 
@@ -351,5 +385,14 @@ const insert_story = () => {
 	content!.style.width = '600px';
 }
 
+const on_receive_map = (ob:any) => {
+
+}
+
 // populate HTML
 insert_story()
+
+// request map
+// httpPost('ajax', {
+// 	action: 'get_map',
+// }, on_receive_map);

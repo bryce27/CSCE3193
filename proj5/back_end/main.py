@@ -2,6 +2,7 @@ from typing import Mapping, Any
 import os
 from http_daemon import delay_open_url, serve_pages
 from typing import Dict, List, Tuple
+import json
 
 class Player:
     def __init__(self, id:str) -> None:
@@ -40,6 +41,12 @@ def ajax(req: Mapping[str, Any]) -> Mapping[str, Any]:
             'message': 'OK',
         }
     
+    elif req['action'] == 'get_map':
+        return {
+            'status': 'map',
+            'map': map,
+        }
+    
     elif req['action'] == 'update': 
         if (len(history) == 0):
             return {
@@ -60,8 +67,17 @@ def ajax(req: Mapping[str, Any]) -> Mapping[str, Any]:
         raise ValueError('we shouldnt be here')
     
 
+map: Mapping[str, Any] = {}
+
+def load_map() -> None:
+  global map
+  with open('map.json', 'rb') as f:
+      s = f.read()
+  map = json.loads(s)
+
 def main() -> None:
     os.chdir(os.path.join(os.path.dirname(__file__), '../front_end'))
+    # load_map()
 
     # Routes
     port = 8987
@@ -70,6 +86,7 @@ def main() -> None:
     serve_pages(port, { 
         'ajax': ajax,
     })
+
 
 
 if __name__ == "__main__":

@@ -98,6 +98,8 @@ const g_id = random_id(12);
 let g_name = '';
 let g_scroll_x = 0;
 let g_scroll_y = 0;
+let g_gold = 0;
+let g_bananas = 0;
 
 class Model {
 	sprites: Sprite[] = [];
@@ -148,6 +150,7 @@ class View
 		ctx!.clearRect(0, 0, 1000, 500);
 
 		// auto scroll
+
 		// const center_x = 500;
 		// const center_y = 270;
 		// const scroll_rate = 0.03;
@@ -207,7 +210,6 @@ const httpPost = (page_name: string, payload: any, callback: HttpPostCallback) =
 	request.send(JSON.stringify(payload));
 }
 
-
 class Controller
 {
 	model: Model;
@@ -232,18 +234,29 @@ class Controller
 		document.addEventListener('keyup', function(event) { self.keyUp(event); }, false);
 	}
 
+	// sends MOVE to server
 	onClick(event: MouseEvent) {
 		let x = event.pageX - this.view.canvas.offsetLeft;
 		let y = event.pageY - this.view.canvas.offsetTop;
 		this.model.onclick(x, y);
 
-		httpPost('ajax', {
+		// for Gashler backend
+		httpPost('ajax.html', {
 			id: g_id,
 			name: g_name,
-			action: 'click',
+			action: 'move',
 			x: x,
 			y: y,
 		}, this.onAcknowledgeClick);
+
+		// my code
+		// httpPost('ajax', {
+		// 	id: g_id,
+		// 	name: g_name,
+		// 	action: 'click',
+		// 	x: x,
+		// 	y: y,
+		// }, this.onAcknowledgeClick);
 	}
 
 	keyDown(event: KeyboardEvent) {
@@ -261,15 +274,36 @@ class Controller
 	}
 
 	on_receive_updates(ob:any) {
-		// console.log(`ob = ${JSON.stringify(ob)}`)
+		console.log(`ob = ${JSON.stringify(ob)}`)
+		if (ob.status === 'error') {
+			console.log(`!!! Server replied: ${ob.message}`);
+			return;
+		}
 
+		if (!!ob.gold && !!ob.bananas) {
+			g_gold = ob.gold;
+			g_bananas = ob.bananas;
+
+			const gold = document.getElementById('gold');
+			const bananas = document.getElementById('bananas');
+			gold!.innerHTML = "<span id='gold'>${gold}</span>"
+			bananas!.innerHTML = "<span id='bananas'>${bananas}</span>"
+		}
+		
 		for (let i = 0; i < ob.updates.length; i++) {
 			let update = ob.updates[i];
 
-			let id = update[0];
-			let name = update[1];
-			let x = update[2];
-			let y = update[3];
+			// gashler backend code
+			let id = update.id;
+			let name = update.name;
+			let x = update.x;
+			let y = update.y;
+
+			// my code
+			// let id = update[0];
+			// let name = update[1];
+			// let x = update[2];
+			// let y = update[3];
 
 			let sprite = sprite_map[id];
 			if (sprite === undefined) {
@@ -283,6 +317,19 @@ class Controller
 				sprite.set_destination(x,y);
 			}
 		}
+
+		// ob.chats // strings to add to chat window
+		const select_element = document.getElementById('chatWindow');
+		
+		for (let i = 0; i < ob.chats.length; i++) {
+			let chat_message = ob.chats[i];
+			let opt = document.createElement('option');
+    		opt.value = chat_message;
+    		opt.innerHTML = chat_message;
+    		select_element!.appendChild(opt);
+			opt.scrollIntoView()
+			// <input type='input' id='chatMessage'></input>
+		}
 	}
 
 	request_updates() {
@@ -291,7 +338,7 @@ class Controller
 			'action': 'update',
 		}
 
-		httpPost('ajax', payload, (ob) => {return this.on_receive_updates(ob)} );
+		httpPost('ajax.html', payload, (ob) => {return this.on_receive_updates(ob)} );
 	}
 
 	update() {
@@ -314,11 +361,13 @@ class Controller
 	}
 
 	onAcknowledgeClick(ob: any) {
-		// console.log(`Response to move: ${JSON.stringify(ob)}`);
+		console.log(`Response to move: ${JSON.stringify(ob)}`);
+		if (ob.status === 'error') {
+			console.log(`!!! Server replied: ${ob.message}`);
+			return;
+		}
 	}
-
 }
-
 
 class Game {
 	model: Model;
@@ -364,6 +413,7 @@ let start = () => {
 	remove_input();
 	insert_canvas();
 	insert_scoreboard()
+	insert_chat()
 	
 	let game = new Game();
 	let timer = setInterval(() => { game.onTimer(); }, 40);
@@ -392,12 +442,31 @@ const insert_story = () => {
 	content!.style.width = '600px';
 }
 
+const insert_chat = () => {
+	let content = document.getElementById('content') as HTMLInputElement | null;
+	let inputs = "<br><select id='chatWindow' size='8' style='width:1000px'></select><br><input type='input' id='chatMessage'></input><button onclick='send_chat()'>Post</button>"
+	content!.innerHTML = content!.innerHTML + inputs;
+}
+
 const on_receive_map = (ob:any) => {
 	console.log(`ob = ${JSON.stringify(ob)}`)
 	if (ob.status === 'error') {
 		console.log(`!!! Server replied: ${ob.message}`);
 		return;
-	  }
+	}
+}
+
+const send_chat = () => {
+	let element = document.getElementById('chatMessage') as HTMLInputElement | null;
+	let message = element?.value;
+
+	let payload = {
+		'id': g_id,
+		'action': 'chat',
+		'text': message
+	}
+
+	httpPost('ajax.html', payload, (ob) => {return Controller.prototype.on_receive_updates(ob)} );
 }
 
 // populate HTML
@@ -405,6 +474,6 @@ insert_story()
 insert_input()
 
 // request map from Gashler server
-// httpPost('ajax.html', {
-// 	action: 'get_map',
-// }, on_receive_map);
+httpPost('ajax.html', {
+	action: 'get_map',
+}, on_receive_map);

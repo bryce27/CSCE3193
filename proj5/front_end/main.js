@@ -33,6 +33,8 @@ var Thing = /** @class */ (function () {
     Thing.prototype.sit_still = function () { };
     return Thing;
 }());
+var g_scroll_x = 0;
+var g_scroll_y = 0;
 var Sprite = /** @class */ (function () {
     function Sprite(x, y, image_url, update_method, onclick_method) {
         this.x = x;
@@ -50,13 +52,16 @@ var Sprite = /** @class */ (function () {
         this.label = name;
     };
     Sprite.prototype.set_destination = function (x, y) {
+        // console.log(`set destination: ${x}, ${y}`);
         this.dest_x = x;
         this.dest_y = y;
     };
     Sprite.prototype.ignore_click = function (x, y) { };
     Sprite.prototype.move = function (dx, dy) {
+        // console.log(`move: ${dx}, ${dy}`);
         this.dest_x = this.x + dx;
         this.dest_y = this.y + dy;
+        // console.log(`final dest: ${this.dest_x}, ${this.dest_y}`);
     };
     Sprite.prototype.go_toward_destination = function () {
         if (this.dest_x === undefined)
@@ -68,6 +73,7 @@ var Sprite = /** @class */ (function () {
         var angle = Math.atan2(this.dest_y - this.y, this.dest_x - this.x);
         this.x += step_size * Math.cos(angle);
         this.y += step_size * Math.sin(angle);
+        // console.log(`go toward dest: ${this.x}, ${this.y}`);
         // old way
         // if(this.x < this.dest_x)
         // 	this.x += Math.min(this.dest_x - this.x, this.speed);
@@ -90,8 +96,6 @@ var random_id = function (len) {
 var g_origin = new URL(window.location.href).origin;
 var g_id = random_id(12);
 var g_name = '';
-var g_scroll_x = 0;
-var g_scroll_y = 0;
 var g_gold = 0;
 var g_bananas = 0;
 var Model = /** @class */ (function () {
@@ -100,7 +104,7 @@ var Model = /** @class */ (function () {
         this.things = [];
         this.sprites = [];
         //this.sprites.push(new Sprite(200, 100, "lettuce.png", Sprite.prototype.sit_still, Sprite.prototype.ignore_click));
-        this.character = new Sprite(350, 50, "blue_robot.png", Sprite.prototype.go_toward_destination, Sprite.prototype.set_destination);
+        this.character = new Sprite(500, 270, "blue_robot.png", Sprite.prototype.go_toward_destination, Sprite.prototype.set_destination);
         this.sprites.push(this.character);
         sprite_map[g_id] = this.character;
         this.things = [];
@@ -134,15 +138,16 @@ var View = /** @class */ (function () {
         ctx.font = "20px Verdana";
         ctx.clearRect(0, 0, 1000, 500);
         // auto scroll
-        // const center_x = 500;
-        // const center_y = 270;
-        // const scroll_rate = 0.03;
-        // g_scroll_x += scroll_rate * (this.model.character.x - g_scroll_x - center_x);
-        // g_scroll_y += scroll_rate * (this.model.character.y - g_scroll_y - center_y);
+        var center_x = 500;
+        var center_y = 270;
+        var scroll_rate = 0.3;
+        g_scroll_x += scroll_rate * (this.model.character.x - g_scroll_x - center_x);
+        g_scroll_y += scroll_rate * (this.model.character.y - g_scroll_y - center_y);
         // console.log(g_scroll_x)
         // console.log(g_scroll_y)
         for (var _i = 0, _a = this.model.things; _i < _a.length; _i++) {
             var thing = _a[_i];
+            // TODO: is this the only place I add the scroll variables?
             ctx.drawImage(thing.image, (thing.x - thing.image.width / 2) - g_scroll_x, (thing.y - thing.image.height) - g_scroll_y);
         }
         for (var _b = 0, _c = this.model.sprites; _b < _c.length; _b++) {
@@ -150,34 +155,6 @@ var View = /** @class */ (function () {
             ctx.drawImage(sprite.image, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height);
             ctx.fillText(sprite.label, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height - 10);
         }
-    };
-    View.prototype.insert_canvas = function () {
-        var s = [];
-        s.push("<canvas id=\"myCanvas\" width=\"1000\" height=\"500\" style=\"border:1px solid #cccccc;\">");
-        s.push("</canvas>");
-        var content = document.getElementById('content');
-        content.innerHTML = s.join('');
-        console.log('content with canvas', content);
-    };
-    View.prototype.save_character_name = function () {
-        var character_name = document.getElementById('character_name');
-        g_name = character_name.value; // casted to make work with TS per SO.com
-    };
-    View.prototype.remove_input = function () {
-        var character_name = document.getElementById('character_name');
-        var start_button = document.getElementById('start_button');
-        character_name.remove();
-        start_button.remove();
-    };
-    View.prototype.insert_scoreboard = function () {
-        var content = document.getElementById('content');
-        var scoreboard = "<br><big><big><b>Gold: <span id='gold'>0</span>, Bananas: <span id='bananas'>0</span></b></big></big><br>";
-        content.innerHTML = content.innerHTML + scoreboard;
-    };
-    View.prototype.insert_chat = function () {
-        var content = document.getElementById('content');
-        var inputs = "<br><select id='chatWindow' size='8' style='width:1000px'></select><br><input type='input' id='chatMessage'></input><button onclick='game.controller.send_chat()'>Post</button>";
-        content.innerHTML = content.innerHTML + inputs;
     };
     return View;
 }());
@@ -245,6 +222,7 @@ var Controller = /** @class */ (function () {
         var x = event.pageX - this.view.canvas.offsetLeft;
         var y = event.pageY - this.view.canvas.offsetTop;
         this.model.onclick(x, y);
+        // console.log(`clicked at ${x}, ${y}`);
         // for Gashler backend
         httpPost('ajax.html', {
             id: g_id,
@@ -275,13 +253,15 @@ var Controller = /** @class */ (function () {
             this.key_down = false;
     };
     Controller.prototype.on_receive_updates = function (ob) {
-        console.log("ob = ".concat(JSON.stringify(ob)));
+        // console.log(`ob = ${JSON.stringify(ob)}`)
         if (ob.status === 'error') {
             console.log("!!! Server replied: ".concat(ob.message));
             return;
         }
-        if (ob.gold && ob.bananas) {
-            console.log('made it inside gold and bananas null check');
+        // console.log('gold', ob.gold);
+        // console.log('bananas', ob.bananas);
+        if (!!ob.gold && !!ob.bananas) {
+            //console.log('made it inside gold and bananas null check');
             g_gold = ob.gold;
             g_bananas = ob.bananas;
             var gold = document.getElementById('gold');
@@ -294,8 +274,9 @@ var Controller = /** @class */ (function () {
             // gashler backend code
             var id = update.id;
             var name_1 = update.name;
-            var x = update.x - g_scroll_x;
-            var y = update.y - g_scroll_y;
+            var dest_x = update.x;
+            var dest_y = update.y;
+            // console.log(`update coord: ${dest_x}, ${dest_y}`);
             // my code
             // let id = update[0];
             // let name = update[1];
@@ -303,15 +284,16 @@ var Controller = /** @class */ (function () {
             // let y = update[3];
             var sprite = sprite_map[id];
             if (sprite === undefined) {
-                var s = new Sprite(x, y, "green_robot.png", Sprite.prototype.go_toward_destination, Sprite.prototype.ignore_click);
+                // console.log('sprite undefined');
+                var s = new Sprite(dest_x, dest_y, "green_robot.png", Sprite.prototype.go_toward_destination, Sprite.prototype.ignore_click);
                 s.set_label(name_1);
-                s.set_destination(x, y);
+                s.set_destination(dest_x, dest_y);
                 this.model.sprites.push(s);
                 sprite_map[id] = s;
             }
             else {
                 sprite.set_label(name_1);
-                sprite.set_destination(x, y);
+                sprite.set_destination(dest_x, dest_y);
             }
         }
         // ob.chats // strings to add to chat window
@@ -325,21 +307,6 @@ var Controller = /** @class */ (function () {
             opt.scrollIntoView();
         }
     };
-    // on_receive_map(ob:any) {
-    // 	console.log(`ob = ${JSON.stringify(ob)}`)
-    // 	if (ob.status === 'error') {
-    // 		console.log(`!!! Server replied: ${ob.message}`);
-    // 		return;
-    // 	}
-    // 	for (let i = 0; i < ob.map.things.length; i++) {
-    // 		let thing = ob.map.things[i];
-    // 		console.log("thing", thing)
-    // 		let image_path = convert_thing_index_to_image(thing.kind)
-    // 		let t = new Thing(thing.x, thing.y, image_path, Thing.prototype.sit_still, Thing.prototype.ignore_click);
-    // 		this.model.things.push(t);
-    // 		// ctx!.fillText(sprite.label, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height - 10);
-    // 	}
-    // }
     Controller.prototype.request_updates = function () {
         var _this = this;
         var payload = {
@@ -348,12 +315,6 @@ var Controller = /** @class */ (function () {
         };
         httpPost('ajax.html', payload, function (ob) { return _this.on_receive_updates(ob); });
     };
-    // request_map() {
-    // 	let payload = {
-    // 		'action': 'get_map',
-    // 	}
-    // 	httpPost('ajax.html', payload, (ob) => {return this.on_receive_map(ob)} );
-    // }
     Controller.prototype.send_chat = function () {
         var _this = this;
         var element = document.getElementById('chatMessage');
@@ -381,7 +342,7 @@ var Controller = /** @class */ (function () {
             this.model.move(dx, dy);
         var time = Date.now();
         var diff = time - this.last_updates_request_time;
-        if (diff >= 1000) {
+        if (diff >= 2000) {
             this.last_updates_request_time = time;
             this.request_updates();
         }
@@ -409,51 +370,6 @@ var Game = /** @class */ (function () {
     };
     return Game;
 }());
-// Project 5 game intro stuff
-// const insert_canvas = () => {
-// 	let s: string[] = [];
-// 	s.push(`<canvas id="myCanvas" width="1000" height="500" style="border:1px solid #cccccc;">`);
-// 	s.push(`</canvas>`);
-// 	const content = document.getElementById('content');
-// 	content!.innerHTML = s.join('');
-// }
-// const save_character_name = () => {
-// 	const character_name = document.getElementById('character_name');
-// 	g_name = (<HTMLInputElement>character_name).value; // casted to make work with TS per SO.com
-// }
-// const remove_input = () => {
-// 	const character_name = document.getElementById('character_name');
-// 	const start_button = document.getElementById('start_button');
-// 	character_name!.remove();
-// 	start_button!.remove();
-// }
-// let start = () => {
-// 	save_character_name();
-// 	remove_input();
-// 	insert_canvas();
-// 	insert_scoreboard()
-// 	insert_chat()
-// }
-// const insert_scoreboard = () => {
-// 	let content = document.getElementById('content') as HTMLInputElement | null;
-// 	let scoreboard = "<br><big><big><b>Gold: <span id='gold'>0</span>, Bananas: <span id='bananas'>0</span></b></big></big><br>"
-// 	content!.innerHTML = content!.innerHTML + scoreboard;
-// }
-// const insert_input = () => {
-// 	let content = document.getElementById('content') as HTMLInputElement | null;
-// 	let inputs = "<input type='text' id='character_name'></input><button id='start_button' style='margin-top: 10px' onclick='start();'>Start</button>"
-// 	content!.innerHTML = content!.innerHTML + inputs;
-// }
-// const insert_story = () => {
-// 	let content = document.getElementById('content') as HTMLInputElement | null;
-// 	content!.innerHTML = "<h2>Banana Quest: The Potassium Crisis</h2>"
-// 		+ "<p>In a land known as \"Fruitopia,\" the inhabitants thrived on the delicious and nutritious fruits that grew abundantly. One fruit, in particular, was highly treasured - the mighty banana. Fruitopia's inhabitants had always enjoyed the health benefits and energy provided by this potassium-rich treat, which fueled their daily adventures and brought joy to their lives.</p>"
-// 		+ "<p>But one day, a mysterious phenomenon occurred: the banana crops across Fruitopia began to wither, and the supply of this essential fruit dwindled rapidly.As the days passed, the once energetic and lively inhabitants of Fruitopia started to feel weak and fatigued. The doctors and scientists of the land quickly identified the cause - a severe potassium deficiency was spreading among the residents, and it threatened to plunge Fruitopia into a state of perpetual lethargy.Desperate to restore the health and vitality of their beloved land, the citizens of Fruitopia are turning to you to help them find 20 bananas.The fate of Fruitopia hangs in the balance.</p>"
-// 		+ "<p>tl;dr: Find 20 bananas to win.</p>" 
-// 		+ "<p>If you are willing to undertake this noble quest, please enter your name:</p>" 
-// 	content!.style.wordWrap = 'break-word';
-// 	content!.style.width = '600px';
-// }
 var convert_thing_index_to_image = function (index) {
     return "".concat(thing_names[index], ".png");
 };
@@ -485,7 +401,7 @@ var insert_input = function () {
     content.innerHTML = content.innerHTML + inputs;
 };
 var insert_story = function () {
-    console.log('insert story');
+    // console.log('insert story');
     var content = document.getElementById('content');
     content.innerHTML = "<h2>Banana Quest: The Potassium Crisis</h2>"
         + "<p>In a land known as \"Fruitopia,\" the inhabitants thrived on the delicious and nutritious fruits that grew abundantly. One fruit, in particular, was highly treasured - the mighty banana. Fruitopia's inhabitants had always enjoyed the health benefits and energy provided by this potassium-rich treat, which fueled their daily adventures and brought joy to their lives.</p>"
@@ -502,7 +418,7 @@ var insert_chat = function () {
 };
 var things = [];
 var on_receive_map = function (ob) {
-    console.log("ob = ".concat(JSON.stringify(ob)));
+    // console.log(`ob = ${JSON.stringify(ob)}`)
     if (ob.status === 'error') {
         console.log("!!! Server replied: ".concat(ob.message));
         return;

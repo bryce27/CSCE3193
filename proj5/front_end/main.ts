@@ -14,8 +14,25 @@ const thing_names = [
 	"turtle",
 ];
 
-const convert_thing_index_to_image = (index:number) => {
-	return `${thing_names[index]}.png`
+class Thing {
+	x: number;
+	y: number;
+	image: HTMLImageElement;
+	update: UpdateMethod;
+	onclick: OnClickMethod;
+
+	constructor(x: number, y: number, image_url: string, update_method: UpdateMethod, onclick_method: OnClickMethod) {
+		this.x = x;
+		this.y = y;
+		this.image = new Image();
+		this.image.src = image_url;
+		this.update = update_method;
+		this.onclick = onclick_method;
+	}
+
+	ignore_click(x: number, y: number) {}
+
+	sit_still() {}
 }
 
 class Sprite {
@@ -104,13 +121,15 @@ let g_bananas = 0;
 class Model {
 	sprites: Sprite[] = [];
 	character: Sprite;
+	things: Thing[] = [];
 
 	constructor() {
 		this.sprites = [];
-		this.sprites.push(new Sprite(200, 100, "lettuce.png", Sprite.prototype.sit_still, Sprite.prototype.ignore_click));
+		//this.sprites.push(new Sprite(200, 100, "lettuce.png", Sprite.prototype.sit_still, Sprite.prototype.ignore_click));
 		this.character = new Sprite(350, 50, "blue_robot.png", Sprite.prototype.go_toward_destination, Sprite.prototype.set_destination);
 		this.sprites.push(this.character);
 		sprite_map[g_id] = this.character;
+		this.things = [];
 	}
 
 	update() {
@@ -129,7 +148,6 @@ class Model {
 		this.character.move(dx, dy);
 	}
 }
-
 
 class View
 {
@@ -150,7 +168,6 @@ class View
 		ctx!.clearRect(0, 0, 1000, 500);
 
 		// auto scroll
-
 		// const center_x = 500;
 		// const center_y = 270;
 		// const scroll_rate = 0.03;
@@ -159,11 +176,47 @@ class View
 		// console.log(g_scroll_x)
 		// console.log(g_scroll_y)
 
+		for (let thing of this.model.things) {
+			ctx!.drawImage(thing.image, (thing.x - thing.image.width / 2) - g_scroll_x, (thing.y - thing.image.height) - g_scroll_y);
+		}
+
 		for (let sprite of this.model.sprites) {
 			ctx!.drawImage(sprite.image, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height);
 			ctx!.fillText(sprite.label, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height - 10);
 		}
-		
+	}
+
+	insert_canvas() {
+		let s: string[] = [];
+		s.push(`<canvas id="myCanvas" width="1000" height="500" style="border:1px solid #cccccc;">`);
+		s.push(`</canvas>`);
+		const content = document.getElementById('content');
+		content!.innerHTML = s.join('');
+		console.log('content with canvas', content)
+	}
+	
+	save_character_name() {
+		const character_name = document.getElementById('character_name');
+		g_name = (<HTMLInputElement>character_name).value; // casted to make work with TS per SO.com
+	}
+	
+	remove_input() {
+		const character_name = document.getElementById('character_name');
+		const start_button = document.getElementById('start_button');
+		character_name!.remove();
+		start_button!.remove();
+	}
+
+	insert_scoreboard() {
+		let content = document.getElementById('content') as HTMLInputElement | null;
+		let scoreboard = "<br><big><big><b>Gold: <span id='gold'>0</span>, Bananas: <span id='bananas'>0</span></b></big></big><br>"
+		content!.innerHTML = content!.innerHTML + scoreboard;
+	}
+	
+	insert_chat() {
+		let content = document.getElementById('content') as HTMLInputElement | null;
+		let inputs = "<br><select id='chatWindow' size='8' style='width:1000px'></select><br><input type='input' id='chatMessage'></input><button onclick='game.controller.send_chat()'>Post</button>"
+		content!.innerHTML = content!.innerHTML + inputs;
 	}
 }
 
@@ -229,6 +282,7 @@ class Controller
 		this.key_down = false;
 		this.last_updates_request_time = Date.now();
 		let self = this;
+		
 		view.canvas.addEventListener("click", function(event) { self.onClick(event); });
 		document.addEventListener('keydown', function(event) { self.keyDown(event); }, false);
 		document.addEventListener('keyup', function(event) { self.keyUp(event); }, false);
@@ -248,15 +302,6 @@ class Controller
 			x: x,
 			y: y,
 		}, this.onAcknowledgeClick);
-
-		// my code
-		// httpPost('ajax', {
-		// 	id: g_id,
-		// 	name: g_name,
-		// 	action: 'click',
-		// 	x: x,
-		// 	y: y,
-		// }, this.onAcknowledgeClick);
 	}
 
 	keyDown(event: KeyboardEvent) {
@@ -280,7 +325,8 @@ class Controller
 			return;
 		}
 
-		if (!!ob.gold && !!ob.bananas) {
+		if (ob.gold && ob.bananas) {
+			console.log('made it inside gold and bananas null check');
 			g_gold = ob.gold;
 			g_bananas = ob.bananas;
 
@@ -296,8 +342,8 @@ class Controller
 			// gashler backend code
 			let id = update.id;
 			let name = update.name;
-			let x = update.x;
-			let y = update.y;
+			let x = update.x - g_scroll_x;
+			let y = update.y - g_scroll_y;
 
 			// my code
 			// let id = update[0];
@@ -328,9 +374,28 @@ class Controller
     		opt.innerHTML = chat_message;
     		select_element!.appendChild(opt);
 			opt.scrollIntoView()
-			// <input type='input' id='chatMessage'></input>
 		}
 	}
+
+	// on_receive_map(ob:any) {
+	// 	console.log(`ob = ${JSON.stringify(ob)}`)
+	// 	if (ob.status === 'error') {
+	// 		console.log(`!!! Server replied: ${ob.message}`);
+	// 		return;
+	// 	}
+
+	// 	for (let i = 0; i < ob.map.things.length; i++) {
+	// 		let thing = ob.map.things[i];
+	// 		console.log("thing", thing)
+	// 		let image_path = convert_thing_index_to_image(thing.kind)
+
+	// 		let t = new Thing(thing.x, thing.y, image_path, Thing.prototype.sit_still, Thing.prototype.ignore_click);
+	// 		this.model.things.push(t);
+	
+	// 		// ctx!.fillText(sprite.label, sprite.x - sprite.image.width / 2, sprite.y - sprite.image.height - 10);
+			
+	// 	}
+	// }
 
 	request_updates() {
 		let payload = {
@@ -338,6 +403,29 @@ class Controller
 			'action': 'update',
 		}
 
+		httpPost('ajax.html', payload, (ob) => {return this.on_receive_updates(ob)} );
+	}
+
+	// request_map() {
+		
+
+	// 	let payload = {
+	// 		'action': 'get_map',
+	// 	}
+
+	// 	httpPost('ajax.html', payload, (ob) => {return this.on_receive_map(ob)} );
+	// }
+
+	send_chat() {
+		let element = document.getElementById('chatMessage') as HTMLInputElement | null;
+		let message = element?.value;
+	
+		let payload = {
+			'id': g_id,
+			'action': 'chat',
+			'text': message
+		}
+	
 		httpPost('ajax.html', payload, (ob) => {return this.on_receive_updates(ob)} );
 	}
 
@@ -374,8 +462,9 @@ class Game {
     view: View;
     controller: Controller;
 
-	constructor() {
+	constructor(things: Thing[]) {
 		this.model = new Model();
+		this.model.things = things;
 		this.view = new View(this.model);
 		this.controller = new Controller(this.model, this.view);
 	}
@@ -388,6 +477,65 @@ class Game {
 }
 
 // Project 5 game intro stuff
+// const insert_canvas = () => {
+// 	let s: string[] = [];
+// 	s.push(`<canvas id="myCanvas" width="1000" height="500" style="border:1px solid #cccccc;">`);
+// 	s.push(`</canvas>`);
+// 	const content = document.getElementById('content');
+// 	content!.innerHTML = s.join('');
+// }
+
+// const save_character_name = () => {
+// 	const character_name = document.getElementById('character_name');
+// 	g_name = (<HTMLInputElement>character_name).value; // casted to make work with TS per SO.com
+// }
+
+// const remove_input = () => {
+// 	const character_name = document.getElementById('character_name');
+// 	const start_button = document.getElementById('start_button');
+// 	character_name!.remove();
+// 	start_button!.remove();
+// }
+
+// let start = () => {
+// 	save_character_name();
+// 	remove_input();
+// 	insert_canvas();
+// 	insert_scoreboard()
+// 	insert_chat()
+	
+	
+// }
+
+// const insert_scoreboard = () => {
+// 	let content = document.getElementById('content') as HTMLInputElement | null;
+// 	let scoreboard = "<br><big><big><b>Gold: <span id='gold'>0</span>, Bananas: <span id='bananas'>0</span></b></big></big><br>"
+// 	content!.innerHTML = content!.innerHTML + scoreboard;
+// }
+
+// const insert_input = () => {
+// 	let content = document.getElementById('content') as HTMLInputElement | null;
+// 	let inputs = "<input type='text' id='character_name'></input><button id='start_button' style='margin-top: 10px' onclick='start();'>Start</button>"
+// 	content!.innerHTML = content!.innerHTML + inputs;
+// }
+
+// const insert_story = () => {
+// 	let content = document.getElementById('content') as HTMLInputElement | null;
+// 	content!.innerHTML = "<h2>Banana Quest: The Potassium Crisis</h2>"
+// 		+ "<p>In a land known as \"Fruitopia,\" the inhabitants thrived on the delicious and nutritious fruits that grew abundantly. One fruit, in particular, was highly treasured - the mighty banana. Fruitopia's inhabitants had always enjoyed the health benefits and energy provided by this potassium-rich treat, which fueled their daily adventures and brought joy to their lives.</p>"
+// 		+ "<p>But one day, a mysterious phenomenon occurred: the banana crops across Fruitopia began to wither, and the supply of this essential fruit dwindled rapidly.As the days passed, the once energetic and lively inhabitants of Fruitopia started to feel weak and fatigued. The doctors and scientists of the land quickly identified the cause - a severe potassium deficiency was spreading among the residents, and it threatened to plunge Fruitopia into a state of perpetual lethargy.Desperate to restore the health and vitality of their beloved land, the citizens of Fruitopia are turning to you to help them find 20 bananas.The fate of Fruitopia hangs in the balance.</p>"
+// 		+ "<p>tl;dr: Find 20 bananas to win.</p>" 
+// 		+ "<p>If you are willing to undertake this noble quest, please enter your name:</p>" 
+// 	content!.style.wordWrap = 'break-word';
+// 	content!.style.width = '600px';
+// }
+
+
+
+const convert_thing_index_to_image = (index:number) => {
+	return `${thing_names[index]}.png`
+}
+
 const insert_canvas = () => {
 	let s: string[] = [];
 	s.push(`<canvas id="myCanvas" width="1000" height="500" style="border:1px solid #cccccc;">`);
@@ -408,16 +556,7 @@ const remove_input = () => {
 	start_button!.remove();
 }
 
-let start = () => {
-	save_character_name();
-	remove_input();
-	insert_canvas();
-	insert_scoreboard()
-	insert_chat()
-	
-	let game = new Game();
-	let timer = setInterval(() => { game.onTimer(); }, 40);
-}
+
 
 const insert_scoreboard = () => {
 	let content = document.getElementById('content') as HTMLInputElement | null;
@@ -432,6 +571,7 @@ const insert_input = () => {
 }
 
 const insert_story = () => {
+	console.log('insert story');
 	let content = document.getElementById('content') as HTMLInputElement | null;
 	content!.innerHTML = "<h2>Banana Quest: The Potassium Crisis</h2>"
 		+ "<p>In a land known as \"Fruitopia,\" the inhabitants thrived on the delicious and nutritious fruits that grew abundantly. One fruit, in particular, was highly treasured - the mighty banana. Fruitopia's inhabitants had always enjoyed the health benefits and energy provided by this potassium-rich treat, which fueled their daily adventures and brought joy to their lives.</p>"
@@ -448,14 +588,24 @@ const insert_chat = () => {
 	content!.innerHTML = content!.innerHTML + inputs;
 }
 
+let things: Thing[] = [];
 const on_receive_map = (ob:any) => {
 	console.log(`ob = ${JSON.stringify(ob)}`)
 	if (ob.status === 'error') {
 		console.log(`!!! Server replied: ${ob.message}`);
 		return;
 	}
+
+	for (let i = 0; i < ob.map.things.length; i++) {
+		let thing = ob.map.things[i];
+		let image_path = convert_thing_index_to_image(thing.kind)
+
+		let t = new Thing(thing.x, thing.y, image_path, Thing.prototype.sit_still, Thing.prototype.ignore_click);
+		things.push(t);
+	}
 }
 
+// controller, should be in
 const send_chat = () => {
 	let element = document.getElementById('chatMessage') as HTMLInputElement | null;
 	let message = element?.value;
@@ -469,11 +619,21 @@ const send_chat = () => {
 	httpPost('ajax.html', payload, (ob) => {return Controller.prototype.on_receive_updates(ob)} );
 }
 
+let start = () => {
+	save_character_name();
+	remove_input();
+	insert_canvas();
+	insert_scoreboard()
+	insert_chat()
+
+	let game = new Game(things);
+	let timer = setInterval(() => { game.onTimer(); }, 40);
+}
+
 // populate HTML
 insert_story()
 insert_input()
 
-// request map from Gashler server
 httpPost('ajax.html', {
 	action: 'get_map',
 }, on_receive_map);

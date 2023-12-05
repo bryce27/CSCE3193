@@ -103,47 +103,69 @@ var View = /** @class */ (function () {
     };
     return View;
 }());
-var httpPost = function (page_name, payload, callback) {
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-        if (request.readyState === 4) {
-            if (request.status === 200) {
-                var response_obj = void 0;
-                try {
-                    response_obj = JSON.parse(request.responseText);
-                }
-                catch (err) { }
-                if (response_obj) {
-                    callback(response_obj);
-                }
-                else {
-                    callback({
-                        status: 'error',
-                        message: 'response is not valid JSON',
-                        response: request.responseText,
-                    });
-                }
-            }
-            else {
-                if (request.status === 0 && request.statusText.length === 0) {
-                    callback({
-                        status: 'error',
-                        message: 'connection failed',
-                    });
-                }
-                else {
-                    callback({
-                        status: 'error',
-                        message: "server returned status ".concat(request.status, ": ").concat(request.statusText),
-                    });
-                }
-            }
+// let async my_func = () => {
+// 	return new Promise((resolve_method)) => {
+// 		// do the stuff I was already doing
+// 		let result = await fetch();
+// 		resolve_method(do_stuff());
+// 	}
+// }
+var postStuff = function (page_name, payload) {
+    return fetch("".concat(g_origin, "/").concat(page_name), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    })
+        .then(function (response) {
+        if (!response.ok) {
+            throw new Error("HTTP error! Status: ".concat(response.status));
         }
-    };
-    request.open('post', "".concat(g_origin, "/").concat(page_name), true);
-    request.setRequestHeader('Content-Type', 'application/json');
-    request.send(JSON.stringify(payload));
+        return response.json();
+    })
+        .catch(function (error) {
+        console.error('Fetch error:', error);
+        return { status: 'error', message: error.message };
+    });
 };
+// switch out httpPost for fetch()
+// const httpPost = (page_name: string, payload: any, callback: HttpPostCallback) => {
+// 	let request = new XMLHttpRequest();
+// 	request.onreadystatechange = () => {
+// 		if(request.readyState === 4)
+// 		{
+// 			if(request.status === 200) {
+// 				let response_obj;
+// 				try {
+// 					response_obj = JSON.parse(request.responseText);
+// 				} catch(err) {}
+// 				if (response_obj) {
+// 					callback(response_obj);
+// 				} else {
+// 					callback({
+// 						status: 'error',
+// 						message: 'response is not valid JSON',
+// 						response: request.responseText,
+// 					});
+// 				}
+// 			} else {
+// 				if(request.status === 0 && request.statusText.length === 0) {
+// 					callback({
+// 						status: 'error',
+// 						message: 'connection failed',
+// 					});
+// 				} else {
+// 					callback({
+// 						status: 'error',
+// 						message: `server returned status ${request.status}: ${request.statusText}`,
+// 					});
+// 				}
+// 			}
+// 		}
+// 	};
+// 	request.open('post', `${g_origin}/${page_name}`, true);
+// 	request.setRequestHeader('Content-Type', 'application/json');
+// 	request.send(JSON.stringify(payload));
+// }
 var Controller = /** @class */ (function () {
     function Controller(model, view) {
         this.key_right = false;
@@ -166,12 +188,13 @@ var Controller = /** @class */ (function () {
         var x = event.pageX - this.view.canvas.offsetLeft;
         var y = event.pageY - this.view.canvas.offsetTop;
         this.model.onclick(x, y);
-        httpPost('ajax', {
+        // use fetch view postStuff
+        postStuff('ajax', {
             id: g_id,
             action: 'click',
             x: x,
             y: y,
-        }, this.onAcknowledgeClick);
+        });
     };
     Controller.prototype.keyDown = function (event) {
         if (event.keyCode == 39)
@@ -218,7 +241,7 @@ var Controller = /** @class */ (function () {
             'id': g_id,
             'action': 'update',
         };
-        httpPost('ajax', payload, function (ob) { return _this.on_receive_updates(ob); });
+        postStuff('ajax', payload).then(function (ob) { return _this.on_receive_updates(ob); });
     };
     Controller.prototype.update = function () {
         var dx = 0;

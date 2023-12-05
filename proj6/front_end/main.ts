@@ -129,45 +129,72 @@ interface HttpPostCallback {
 	(x:any): any;
 }
 
-const httpPost = (page_name: string, payload: any, callback: HttpPostCallback) => {
-	let request = new XMLHttpRequest();
-	request.onreadystatechange = () => {
-		if(request.readyState === 4)
-		{
-			if(request.status === 200) {
-				let response_obj;
-				try {
-					response_obj = JSON.parse(request.responseText);
-				} catch(err) {}
-				if (response_obj) {
-					callback(response_obj);
-				} else {
-					callback({
-						status: 'error',
-						message: 'response is not valid JSON',
-						response: request.responseText,
-					});
-				}
-			} else {
-				if(request.status === 0 && request.statusText.length === 0) {
-					callback({
-						status: 'error',
-						message: 'connection failed',
-					});
-				} else {
-					callback({
-						status: 'error',
-						message: `server returned status ${request.status}: ${request.statusText}`,
-					});
-				}
-			}
-		}
-	};
-	request.open('post', `${g_origin}/${page_name}`, true);
-	request.setRequestHeader('Content-Type', 'application/json');
-	request.send(JSON.stringify(payload));
-}
+// let async my_func = () => {
+// 	return new Promise((resolve_method)) => {
+// 		// do the stuff I was already doing
+// 		let result = await fetch();
+// 		resolve_method(do_stuff());
+// 	}
+// }
 
+const postStuff = (page_name: string, payload: any) => {
+    return fetch(`${g_origin}/${page_name}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        return { status: 'error', message: error.message };
+    });
+};
+
+// switch out httpPost for fetch()
+
+// const httpPost = (page_name: string, payload: any, callback: HttpPostCallback) => {
+// 	let request = new XMLHttpRequest();
+// 	request.onreadystatechange = () => {
+// 		if(request.readyState === 4)
+// 		{
+// 			if(request.status === 200) {
+// 				let response_obj;
+// 				try {
+// 					response_obj = JSON.parse(request.responseText);
+// 				} catch(err) {}
+// 				if (response_obj) {
+// 					callback(response_obj);
+// 				} else {
+// 					callback({
+// 						status: 'error',
+// 						message: 'response is not valid JSON',
+// 						response: request.responseText,
+// 					});
+// 				}
+// 			} else {
+// 				if(request.status === 0 && request.statusText.length === 0) {
+// 					callback({
+// 						status: 'error',
+// 						message: 'connection failed',
+// 					});
+// 				} else {
+// 					callback({
+// 						status: 'error',
+// 						message: `server returned status ${request.status}: ${request.statusText}`,
+// 					});
+// 				}
+// 			}
+// 		}
+// 	};
+// 	request.open('post', `${g_origin}/${page_name}`, true);
+// 	request.setRequestHeader('Content-Type', 'application/json');
+// 	request.send(JSON.stringify(payload));
+// }
 
 class Controller
 {
@@ -198,14 +225,13 @@ class Controller
 		let y = event.pageY - this.view.canvas.offsetTop;
 		this.model.onclick(x, y);
 
-		// use fetch
-
-		httpPost('ajax', {
+		// use fetch view postStuff
+		postStuff('ajax', {
 			id: g_id,
 			action: 'click',
 			x: x,
 			y: y,
-		}, this.onAcknowledgeClick);
+		});
 	}
 
 	keyDown(event: KeyboardEvent) {
@@ -250,9 +276,7 @@ class Controller
 			'action': 'update',
 		}
 
-		// use fetch
-
-		httpPost('ajax', payload, (ob) => {return this.on_receive_updates(ob)} );
+		postStuff('ajax', payload).then((ob) => {return this.on_receive_updates(ob)} );
 	}
 
 	update() {

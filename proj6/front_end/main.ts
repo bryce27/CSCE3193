@@ -1,6 +1,19 @@
 type UpdateMethod = () => void;
 type OnClickMethod = (x: number, y: number) => void;
 
+const sleep = async (ms:number) => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// notes
+// let async my_func = () => {
+// 	return new Promise((resolve_method)) => {
+// 		// do the stuff I was already doing
+// 		let result = await fetch();
+// 		resolve_method(do_stuff());
+// 	}
+// }
+
 class Sprite {
 	x: number;
 	y: number;
@@ -100,6 +113,36 @@ class Model {
 	move(dx: number, dy: number) {
 		this.character.move(dx, dy);
 	}
+
+	createBomb() {
+        const bombSprite = new Sprite(
+            this.character.x, 
+            this.character.y, 
+            "bomb.png",
+            () => {},
+            () => {} 
+        );
+
+        this.sprites.push(bombSprite);
+        this.handleBombExplosion(bombSprite);
+    }
+
+	async handleBombExplosion(bombSprite: Sprite) {
+        await sleep(3000);
+        bombSprite.image.src = "explosion.png";
+		bombSprite.y += 100; 
+
+        await sleep(300);
+        this.removeSprite(bombSprite);
+    }
+
+	// remove bomb or other sprite (just bomb for now)
+    removeSprite(sprite: Sprite) {
+        const index = this.sprites.indexOf(sprite);
+        if (index > -1) {
+            this.sprites.splice(index, 1);
+        }
+    }
 }
 
 
@@ -129,14 +172,7 @@ interface HttpPostCallback {
 	(x:any): any;
 }
 
-// let async my_func = () => {
-// 	return new Promise((resolve_method)) => {
-// 		// do the stuff I was already doing
-// 		let result = await fetch();
-// 		resolve_method(do_stuff());
-// 	}
-// }
-
+// converting httpPost to an async method
 const postStuff = (page_name: string, payload: any) => {
     return fetch(`${g_origin}/${page_name}`, {
         method: 'POST',
@@ -145,56 +181,16 @@ const postStuff = (page_name: string, payload: any) => {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            throw new Error(`Error: ${response.status}`);
         }
         return response.json();
     })
     .catch(error => {
-        console.error('Fetch error:', error);
+        console.error('catching error:', error);
         return { status: 'error', message: error.message };
     });
 };
 
-// switch out httpPost for fetch()
-
-// const httpPost = (page_name: string, payload: any, callback: HttpPostCallback) => {
-// 	let request = new XMLHttpRequest();
-// 	request.onreadystatechange = () => {
-// 		if(request.readyState === 4)
-// 		{
-// 			if(request.status === 200) {
-// 				let response_obj;
-// 				try {
-// 					response_obj = JSON.parse(request.responseText);
-// 				} catch(err) {}
-// 				if (response_obj) {
-// 					callback(response_obj);
-// 				} else {
-// 					callback({
-// 						status: 'error',
-// 						message: 'response is not valid JSON',
-// 						response: request.responseText,
-// 					});
-// 				}
-// 			} else {
-// 				if(request.status === 0 && request.statusText.length === 0) {
-// 					callback({
-// 						status: 'error',
-// 						message: 'connection failed',
-// 					});
-// 				} else {
-// 					callback({
-// 						status: 'error',
-// 						message: `server returned status ${request.status}: ${request.statusText}`,
-// 					});
-// 				}
-// 			}
-// 		}
-// 	};
-// 	request.open('post', `${g_origin}/${page_name}`, true);
-// 	request.setRequestHeader('Content-Type', 'application/json');
-// 	request.send(JSON.stringify(payload));
-// }
 
 class Controller
 {
@@ -225,7 +221,7 @@ class Controller
 		let y = event.pageY - this.view.canvas.offsetTop;
 		this.model.onclick(x, y);
 
-		// use fetch view postStuff
+		// POST with method that uses fetch
 		postStuff('ajax', {
 			id: g_id,
 			action: 'click',
@@ -239,6 +235,10 @@ class Controller
 		else if(event.keyCode == 37) this.key_left = true;
 		else if(event.keyCode == 38) this.key_up = true;
 		else if(event.keyCode == 40) this.key_down = true;
+
+		if(event.keyCode == 32) { // 32 = space bar 
+            this.model.createBomb();
+        }
 	}
 
 	keyUp(event: KeyboardEvent) {
@@ -249,8 +249,6 @@ class Controller
 	}
 
 	on_receive_updates(ob:any) {
-		// console.log(`ob = ${JSON.stringify(ob)}`)
-
 		for (let i = 0; i < ob.updates.length; i++) {
 			let update = ob.updates[i];
 
@@ -276,6 +274,7 @@ class Controller
 			'action': 'update',
 		}
 
+		// changed to async with .then chain
 		postStuff('ajax', payload).then((ob) => {return this.on_receive_updates(ob)} );
 	}
 

@@ -2,7 +2,7 @@
 set -e
 pushd front_end
 echo "Type-checking the front end"
-tsc --strict main.ts
+tsc --strict
 popd
 echo "Type-checking the back end"
 pushd back_end
